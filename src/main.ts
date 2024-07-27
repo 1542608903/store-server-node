@@ -1,10 +1,10 @@
 const Koa = require('koa');
 const app = new Koa()
+const userRouter = require('./router/userRoute')
+const { APP_PORT} = require('./config/config.default')
 
-app.use((ctx:any) => {
-    ctx.body = 'hello Koa';
-})
+app.use(userRouter.routes());
 
-app.listen(3000, () => {
-    return console.log('http://127.0.0.1:3000/');
+app.listen(APP_PORT, () => {
+    return console.log(`http://127.0.0.1:${APP_PORT}/`);
 }); 
