@@ -1,4 +1,4 @@
-const { createUser } = require('../service/userService')
+const { createUser } = require('../service/userService');
 class UseContrller {
     /**
      * 
@@ -12,7 +12,6 @@ class UseContrller {
         const { user_name, password } = ctx.request.body
         //2.操作数据库
         const res = await createUser(user_name, password);
-        
         return ctx.body = {
             code: '0',
             message: '用户注册成功',
