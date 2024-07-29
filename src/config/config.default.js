@@ -1,5 +1,3 @@
-// config.default.js
-//引入
 const dotenv = require('dotenv');
 
 dotenv.config()

@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize'
+const { Sequelize } = require('sequelize')
 
 const { MYSQL_DB, MYSQL_ROOT, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT } = require('../config/config.default')
 
