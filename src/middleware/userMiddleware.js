@@ -36,11 +36,11 @@ const verifyUser = async (ctx, next) => {
         const res = await getUserInfo({ user_name });
         if (res) {
             console.error('用户已存在', ctx.request.body);
-            return ctx.app.emit('error', userAlreadyExited, ctx);
+            ctx.app.emit('error', userAlreadyExited, ctx);
         }
     } catch (err) {
         console.error('获取用户信息错误', err);
-        return ctx.app.emit('error', userRegisterError, ctx);
+        ctx.app.emit('error', userRegisterError, ctx);
     }
     return await next();
 }

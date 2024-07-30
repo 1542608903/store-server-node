@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const seq = require('../db/seq')
-
+const Goods = require('../model/goods');
 const Cart = seq.define('Cart', {
     user_id: {
         type: DataTypes.INTEGER,
@@ -26,6 +26,11 @@ const Cart = seq.define('Cart', {
     },
 }, {
     timestamps: true, // 如果你希望 Sequelize 自动添加 createdAt 和 updatedAt 字段
+});
+
+Cart.belongsTo(Goods,{
+    foreignKey:'goods_id',
+    as:'goods_info',
 });
 // Cart.sync({ force: true })
 module.exports = Cart;

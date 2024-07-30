@@ -13,7 +13,8 @@ app.use(koaBody({
     formidable: {
         uploadDir: path.join(__dirname, '../upload/online'), // 确保这个目录存在且应用有权限写入
         keepExtensions: true, // 保持文件扩展名
-    }
+    },
+    parsedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
 }));
 
 // 静态文件服务配置

@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs')
 const { fileUploadError } = require('../constant/errType');
 
 /**
@@ -10,6 +11,7 @@ const { fileUploadError } = require('../constant/errType');
 const upload = async (ctx) => {
     try {
         const { file } = ctx.request.files;
+        console.log(file);
         if (file) {
             ctx.body = {
                 code: 0,
@@ -23,6 +25,7 @@ const upload = async (ctx) => {
         }
     } catch (err) {
         console.error('文件上传失败', err);
+        fs.unlink(file.filepath, (err) => console.error('删除文件失败'))
         ctx.app.emit('error', fileUploadError, ctx);
     }
 }

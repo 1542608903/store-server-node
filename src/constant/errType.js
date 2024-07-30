@@ -46,34 +46,49 @@ module.exports = {
         message: '未携带 token',
         result: ''
     },
-    hasNotAdminPermission:{
-        code:'10104',
-        message:'没有管理员权限',
-        result:''
+    hasNotAdminPermission: {
+        code: '10104',
+        message: '没有管理员权限',
+        result: ''
     },
-    fileUploadError:{
-        code:'10201',
-        message:'图片上传失败',
-        result:''
+    fileUploadError: {
+        code: '10201',
+        message: '图片上传失败',
+        result: ''
     },
-    unsupportedFileType:{
-        code:'10202',
-        message:'图片仅支持jpeg和png',
-        result:''
+    unsupportedFileType: {
+        code: '10202',
+        message: '图片仅支持jpeg和png',
+        result: {}
     },
-    goodsFormatError:{
-        code:'10203',
-        message:'商品参数格式错误',
-        result:''
+    goodsFormatError: {
+        code: '10203',
+        message: '商品参数格式错误',
+        result: ''
     },
-    publishGoodsError:{
-        code:'10204',
-        message:'商品发布错误',
-        result:''
+    publishGoodsError: {
+        code: '10204',
+        message: '商品发布错误',
+        result: ''
     },
-    invalidGoodsID:{
-        code:'10205',
-        message:'商品ID不存在',
-        result:''
+    invalidGoodsID: {
+        code: '10205',
+        message: '商品ID不存在',
+        result: ''
+    },
+    addCartError: {
+        code: '10301',
+        message: '添加购物车失败',
+        result: ''
+    },
+    getCartError: {
+        code: '10303',
+        message: '获取购物车失败',
+        result: ''
+    },
+    cartFormatError: {
+        code: '10304',
+        message: '购物车数据格式错误',
+        result: ''
     }
 }

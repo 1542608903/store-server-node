@@ -1,5 +1,14 @@
 const Goods = require('../model/goods');
 class GoodsService {
+    /**
+     * 
+     * @param {number} id -表id
+     * @returns 
+     */
+    async findByPk(id) {
+        const res = await Goods.findByPk(id);
+        return res
+    }
     async createGoods(goods) {
         const res = await Goods.create(goods);
         return res.dataValues;
@@ -17,12 +26,6 @@ class GoodsService {
         return res > 0 ? true : false;
     }
     async findGoods(pageNum, pageSize) {
-        // //1.获取总数
-        // const count = await Goods.count()
-        // //2.获取分页的具体数据
-        // const offset = (pageNum - 1) * pageSize;
-        // const rows = await Goods.findAll({ offset: offset, limit: +pageSize });
-
         const offset = (pageNum - 1) * pageSize;
         const { count, rows } = await Goods.findAndCountAll({
             offset: offset,
