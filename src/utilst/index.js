@@ -48,6 +48,18 @@ class UtilsClass {
     }
     return price * num;
   }
-}
 
+  /**
+   * 将商品信息映射到订单项格式
+   * @param {Array} items - 商品信息数组
+   * @returns {Array} - 订单项数组
+   */
+  mapItemsToOrderItems(items) {
+    return items.map((item) => ({
+      goods_id: item.id,
+      quantity: item.quantity,
+      price: item.goods_price,
+    }));
+  }
+}
 module.exports = new UtilsClass();

@@ -96,9 +96,19 @@ module.exports = {
     message: "地址数据格式错误",
     result: "",
   },
-  addressUpdateError:{
+  addressUpdateError: {
     code: "10401",
     message: "更新地址错误",
     result: "",
-  }
+  },
+  creatOrderError: {
+    code: "10500",
+    message: "创建订单失败",
+    result: "",
+  },
+  deleteOrderError: {
+    code: "10501",
+    message: "删除订单失败",
+    result: "",
+  },
 };
