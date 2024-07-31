@@ -4,7 +4,7 @@ const {
   updateById,
 } = require("../service/userService");
 const { setRefreshToken, setAccessToken } = require("../config/jwt");
-const { JWT_SECRET } = require("../config/config.default");
+
 class UseContrller {
   /**
    * 用户注册方法
@@ -14,7 +14,6 @@ class UseContrller {
    */
   async register(ctx, next) {
     //1.获取数据
-    console.log(ctx.request.body);
     const { user_name, password } = ctx.request.body;
     //2.操作数据库
     const res = await createUser(user_name, password);
@@ -35,27 +34,24 @@ class UseContrller {
    */
   async login(ctx, next) {
     const { user_name } = ctx.request.body;
-    //使用JWT
+
     try {
-      /**
-       * 获取用户信息
-       * 函数返回的对象中的 password 属性提取出来，并将其余属性放入 resUser 对象中。
-       */
+      //获取用户信息
       const { password, ...userInfo } = await getUserInfo({ user_name });
 
       const [accessToken, rfreshToken] = await Promise.all([
-        setAccessToken(userInfo, "1d"),
+        setAccessToken(userInfo),
         setRefreshToken(userInfo, "1d"),
       ]);
-      ctx.request.header.authorization = `Bearer ${rfreshToken}`;
       ctx.body = {
         code: 0,
         message: "登录成功",
         result: {
-          token: accessToken,
+          accessToken: accessToken,
+          rfreshToken: rfreshToken,
+          userInfo: userInfo,
         },
       };
-    console.log(ctx);
     } catch (err) {
       return console.error("登录失败", err);
     }
@@ -71,7 +67,9 @@ class UseContrller {
     const { id } = ctx.state.user;
     const { password } = ctx.request.body;
     //2.更新到数据库
-    if (await updateById({ id, password })) {
+    const res = await updateById({ id, password });
+    //3.返回结果
+    if (res) {
       ctx.body = {
         code: 0,
         message: "修改密码成功",
@@ -84,7 +82,6 @@ class UseContrller {
         result: "",
       };
     }
-    //3.返回结果
   }
 }
 

@@ -15,7 +15,6 @@ class UserService {
 
     /**
      * 获取用户信息
-     * @param {Object} params - 查询参数对象
      * @param {number} [params.id] - 用户 ID
      * @param {string} [params.user_name] - 用户名
      * @param {string} [params.password] - 用户密码
@@ -46,7 +45,6 @@ class UserService {
 
     /**
      * 根据用户 ID 更新用户信息
-     * @param {Object} params - 更新参数对象
      * @param {number} params.id - 用户 ID
      * @param {string} [params.user_name] - 新的用户名
      * @param {string} [params.password] - 新的用户密码

@@ -11,7 +11,6 @@ class GoodsController {
  * @returns {Promise<void>}
  */
     async create(ctx) {
-        console.log(ctx.request.body);
         try {
             const { updatedAt, ...res } = await createGoods(ctx.request.body);
             ctx.body = {

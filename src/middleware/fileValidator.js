@@ -63,4 +63,4 @@ const fileValidator = (allowedTypes) => {
     };
 };
 
-module.exports = fileValidator;
+module.exports ={fileValidator};

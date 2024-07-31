@@ -91,4 +91,14 @@ module.exports = {
     message: "购物车数据格式错误",
     result: "",
   },
+  addressFormatError: {
+    code: "10400",
+    message: "地址数据格式错误",
+    result: "",
+  },
+  addressUpdateError:{
+    code: "10401",
+    message: "更新地址错误",
+    result: "",
+  }
 };

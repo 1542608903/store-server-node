@@ -31,11 +31,13 @@ const Goods = seq.define('goods', {
     goods_img: {
         type: DataTypes.STRING,
         allowNull: true, // 图片可以为空
-        Comment: '商品图片·'
+        Comment: '商品图片'
     }
 }, {
     timestamps: true, // 自动添加createdAt和updatedAt字段
     paranoid: true,
+    comment: '商品表', // 表的注释
+    tableName:'goods',
 });
 // Goods.sync({ force: true })
 
