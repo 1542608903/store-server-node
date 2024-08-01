@@ -8,9 +8,19 @@ class AddressService {
    * @returns {Object}    -res
    */
   async addressCreate(data) {
+    if (!data) {
+      throw new Error("Invalid input");
+    }
+    const { user_id } = data;
+    let isDefault = false;
+    const { count } = await Address.findAndCountAll({ where: { user_id } });
+    count == 0 ? (isDefault = true) : (isDefault = false);
+    data["is_default"] = isDefault;
     const res = await Address.create(data);
+
     return res;
   }
+
   /**
    *查询所有地址服务
    * @param {number} user_id
@@ -18,7 +28,7 @@ class AddressService {
    */
   async addressFindAll(user_id) {
     const res = await Address.findAll({ where: { user_id: user_id } });
-    return res;
+    return res ? res : null;
   }
   /**
    * 更新地址服务
@@ -31,6 +41,7 @@ class AddressService {
     });
     return res[0] > 0 ? true : false;
   }
+
   async setDefaultAddress(user_id, id, is_default) {
     const transaction = await seq.transaction(); // 开始事务
 
@@ -59,17 +70,24 @@ class AddressService {
     }
   }
   async defaultAddress(user_id) {
+    const is_default = true;
     const res = await Address.findOne(
       {
         where: {
-          [Op.and]: [{ user_id }, { is_default: true }],
+          [Op.and]: [user_id, is_default],
+          // user_id,
+          // is_default,
         },
       },
       {
         limit: 1,
       }
     );
-    return res.dataValues;
+    return res ? res : null;
+  }
+  async deleteAddressById(user_id, id) {
+    const res = await Address.destroy({ where: { user_id, id } });
+    return res;
   }
 }
 

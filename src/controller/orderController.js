@@ -3,9 +3,12 @@ const {
   findAllOrderByUserId,
   deleteOrderById,
 } = require("../service/orderService");
-const { defaultAddress } = require("../service/addressService");
 const { getOrderNumber, mapItemsToOrderItems } = require("../utilst");
-const { creatOrderError,deleteOrderError } = require("../constant/errType");
+const {
+  creatOrderError,
+  deleteOrderError,
+  verifyOntOrder,
+} = require("../constant/errType");
 
 class OrderController {
   /**
@@ -14,19 +17,20 @@ class OrderController {
    * @returns {Promise<void>}
    */
   async create(ctx) {
+    const user_id = ctx.state.user.id; // 获取用户 ID
+    const address_id = ctx.state.address.id; // 获取用户默认地址
+    const items = ctx.request.body.goods_info; // 获取商品信息
+    const order_number = "DMB" + getOrderNumber(13); // 生成订单号
+
+    if (!user_id && !address_id) {
+      console.error("没有数据");
+      return 0;
+    }
     try {
-      const user_id = ctx.state.user.id; // 获取用户 ID
-      const items = ctx.request.body.goods_info; // 获取商品信息
-      const order_number = "DMB" + getOrderNumber(13); // 生成订单号
-      console.log(order_number);
-
-      // 获取用户默认地址
-      const { id, ...address } = await defaultAddress(user_id);
-
       // 计算订单总价
       const order = {
         user_id: user_id,
-        address_id: id,
+        address_id: address_id,
         total_price: items.reduce(
           (total, item) => total + item.goods_price * item.quantity,
           0
@@ -58,11 +62,9 @@ class OrderController {
    * @returns {Promise<void>}
    */
   async findAllOrder(ctx) {
+    const user_id = ctx.state.user.id; // 获取用户 ID
     try {
-      const user_id = ctx.state.user.id; // 获取用户 ID
       const res = await findAllOrderByUserId(user_id); // 查找用户所有订单
-      console.log(res);
-
       ctx.body = {
         code: 0,
         message: "获取订单成功",
@@ -70,7 +72,7 @@ class OrderController {
       };
     } catch (err) {
       console.error("获取订单失败:", err);
-      ctx.app.emit("error", creatOrderError, ctx); // 触发错误事件
+      ctx.app.emit("error", verifyOntOrder, ctx); // 触发错误事件
     }
   }
   async deleteOrder(ctx) {
@@ -84,8 +86,9 @@ class OrderController {
       };
     } catch (err) {
       console.error("删除失败");
-      ctx.app.emit('error',deleteOrderError,ctx);
+      ctx.app.emit("error", deleteOrderError, ctx);
     }
   }
 }
+
 module.exports = new OrderController();

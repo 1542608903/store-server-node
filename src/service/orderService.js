@@ -57,7 +57,6 @@ class OrderService {
 
       // 提取所有订单的 dataValues
       const orderData = orders.map((order) => order.dataValues);
-
       return orderData; // 返回订单数据
     } catch (error) {
       console.error("Error finding orders by user ID:", error);

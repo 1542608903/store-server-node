@@ -1,5 +1,3 @@
-const { unsupportedEngine } = require("sequelize/lib/utils/deprecations");
-
 module.exports = {
   userFormateError: {
     code: "10001",
@@ -49,6 +47,11 @@ module.exports = {
   hasNotAdminPermission: {
     code: "10104",
     message: "没有管理员权限",
+    result: "",
+  },
+  ontAdmin: {
+    code: "10105",
+    message: "你不是管理员",
     result: "",
   },
   fileUploadError: {
@@ -101,13 +104,23 @@ module.exports = {
     message: "更新地址错误",
     result: "",
   },
+  addressNotExited: {
+    code: "10403",
+    message: "地址不存在",
+    result: "",
+  },
   creatOrderError: {
     code: "10500",
     message: "创建订单失败",
     result: "",
   },
+  verifyOntOrder: {
+    code: "10051",
+    message: "没有订单",
+    result: "",
+  },
   deleteOrderError: {
-    code: "10501",
+    code: "10502",
     message: "删除订单失败",
     result: "",
   },

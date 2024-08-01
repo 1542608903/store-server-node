@@ -48,8 +48,11 @@ const hadAdminPermission = async (ctx, next) => {
     }
     await next()
 }
-
+const adminLogin =async ()=>{
+    
+}
 module.exports = {
     auth,
     hadAdminPermission,
+    adminLogin,
 };
