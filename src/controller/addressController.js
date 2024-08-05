@@ -43,7 +43,6 @@ class AddressController {
     const user_id = ctx.state.user.id;
     try {
       const res = await addressFindAll(user_id);
-      console.log(res);
       if (!res) {
         return ctx.app.emit("error", addressNotExited, ctx);
       }
@@ -126,7 +125,6 @@ class AddressController {
     const { id } = ctx.params;
     console.log(id);
     const res = await deleteAddressById(user_id, id);
-    console.log(res);
     ctx.body = {
       code: 0,
       messages: "删除成功",

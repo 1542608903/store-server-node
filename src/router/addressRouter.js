@@ -8,7 +8,7 @@ const {
 } = require("../controller/addressController");
 const { verildatot } = require("../middleware/genericMiddleware");
 const { auth } = require("../middleware/authMiddleware"); // 认证用户
-const { verifyDefaultAddress } = require("../middleware/addressMiddeware");
+const { verifyDefaultAddress } = require("../middleware/addressMiddleware");
 const { addressFormatError } = require("../constant/errType");
 const { addressFormatRoles } = require("../constant/rules");
 

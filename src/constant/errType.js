@@ -1,7 +1,7 @@
 module.exports = {
   userFormateError: {
     code: "10001",
-    message: "用户名或者密码为空",
+    message: "用户格式错误",
     result: "",
   },
   userAlreadyExited: {
@@ -29,6 +29,16 @@ module.exports = {
     message: "密码无效",
     result: "",
   },
+  passwordNotError: {
+    code: "10007",
+    message: "密码不能为空",
+    result: "",
+  },
+  updateUserError: {
+    code: "10008",
+    message: "修改信息失败",
+    result: "",
+  },
   TokenExpiredError: {
     code: "10101",
     message: "token已过期",
@@ -41,7 +51,7 @@ module.exports = {
   },
   NullTokenError: {
     code: "10103",
-    message: "未携带 token",
+    message: "未携带 token或者格式错误",
     result: "",
   },
   hasNotAdminPermission: {
@@ -76,7 +86,7 @@ module.exports = {
   },
   invalidGoodsID: {
     code: "10205",
-    message: "商品ID不存在",
+    message: "商品不存在",
     result: "",
   },
   addCartError: {
@@ -122,6 +132,11 @@ module.exports = {
   deleteOrderError: {
     code: "10502",
     message: "删除订单失败",
+    result: "",
+  },
+  updateOrderError: {
+    code: "10503",
+    message: "修改订单失败",
     result: "",
   },
 };

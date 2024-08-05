@@ -1,8 +1,29 @@
-const { addressFormatError } = require("./errType");
+//邮箱域名只能是163.com，qq.com或者42du.cn。
+const emilRules = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+const phoneRules = /^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/;
 
 module.exports = {
-  userFormateRules: {
+  registerRules: {
+    nik_name: { type: "string", required: false },
+    user_emil: {
+      type: "string",
+      required: true,
+      format: emilRules,
+    },
     user_name: { type: "string", required: true },
+    password: { type: "string", required: true },
+  },
+  loginRules: {
+    user_name: { type: "string", required: true },
+    password: { type: "string", required: true },
+  },
+  updateUserRules: {
+    nik_name: { type: "string", required: true },
+    user_emil: {
+      type: "string",
+      required: true,
+      format: emilRules,
+    },
     password: { type: "string", required: true },
   },
   goodsFormatRules: {
@@ -11,10 +32,10 @@ module.exports = {
     goods_num: { type: "number", required: true },
     goods_img: { type: "string", required: true },
   },
-  addressFormatRoles: {
+  addressFormatRules: {
     id: { type: "number", required: false },
     consignee: { type: "string" },
-    phone: { type: "string", format: /^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/ },
+    phone: { type: "string", format: phoneRules },
     address: { type: "string" },
   },
   goodsInfoRules: {

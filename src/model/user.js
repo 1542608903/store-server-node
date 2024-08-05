@@ -3,8 +3,31 @@ const seq = require("../db/seq");
 
 //创建模型
 const User = seq.define(
-  "user",
+  "User",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    nik_name: {
+      type: DataTypes.STRING,
+      //是否为空
+      allowNull: true,
+      comment: "用户名称",
+    },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: "用户头像",
+    },
+    user_emil: {
+      type: DataTypes.STRING,
+      //是否为空
+      allowNull: true,
+      unique: true,
+      comment: "用户邮箱",
+    },
     user_name: {
       type: DataTypes.STRING,
       //是否为空
@@ -26,11 +49,10 @@ const User = seq.define(
   },
   {
     timestamps: true, // 关闭 Sequelize 自动添加的时间戳
-    comment: "订单表",
+    comment: "用户表",
     tableName: "users",
   }
 );
-//强制同步数据库
-// User.sync({force:true})
 
+// User.sync({ force: true });
 module.exports = User;

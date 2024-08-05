@@ -30,7 +30,7 @@ const verildatot = async (ctx, next) => {
  * @returns {Promise<void>}
  */
 const checkGoodsExists = async (ctx, next) => {
-    const id = ctx.request.body.goods_id || ctx.request.params.id
+    const id = ctx.request.body.goods_id;
     try {
         const res = await findByPk(id);
         if (!res) {

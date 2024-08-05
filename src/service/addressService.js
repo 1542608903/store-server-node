@@ -42,7 +42,7 @@ class AddressService {
     return res[0] > 0 ? true : false;
   }
 
-  async setDefaultAddress(user_id, id, is_default) {
+  async setDefaultAddress(id, user_id, is_default) {
     const transaction = await seq.transaction(); // 开始事务
 
     try {
@@ -57,14 +57,13 @@ class AddressService {
       // 更新指定地址的 is_default 状态
       const [numberOfAffectedRows] = await Address.update(
         { is_default },
-        { where: { user_id, id }, transaction }
+        { where: { id, user_id }, transaction }
       );
 
       await transaction.commit(); // 提交事务
 
       return numberOfAffectedRows > 0;
     } catch (error) {
-      console.error("Error updating address default status:", error);
       await transaction.rollback(); // 回滚事务
       throw error; // 重新抛出错误，以便调用者能够处理
     }
@@ -75,8 +74,6 @@ class AddressService {
       {
         where: {
           [Op.and]: [user_id, is_default],
-          // user_id,
-          // is_default,
         },
       },
       {

@@ -2,12 +2,15 @@ const {
   createOrder,
   findAllOrderByUserId,
   deleteOrderById,
+  updateOrderStatus,
+  orderSearch,
 } = require("../service/orderService");
 const { getOrderNumber, mapItemsToOrderItems } = require("../utilst");
 const {
   creatOrderError,
   deleteOrderError,
   verifyOntOrder,
+  updateOrderError,
 } = require("../constant/errType");
 
 class OrderController {
@@ -88,6 +91,35 @@ class OrderController {
       console.error("删除失败");
       ctx.app.emit("error", deleteOrderError, ctx);
     }
+  }
+  async updateStatus(ctx) {
+    const { id } = ctx.request.params;
+    const { state } = ctx.request.body;
+    const res = await updateOrderStatus(id, state);
+    if (!res) {
+      ctx.app.emit("error", updateOrderError, ctx);
+      return;
+    }
+    ctx.body = {
+      code: 0,
+      message: "状态更新成功",
+      result: "",
+    };
+  }
+  async search(ctx) {
+    const user_id = ctx.state.user.id;
+    const { goods_name } = ctx.request.body;
+    const res = await orderSearch(user_id, goods_name);
+
+    if (!res) {
+      return 0;
+    }
+
+    ctx.body = {
+      code: 0,
+      message: "搜索订单成功",
+      result: res,
+    };
   }
 }
 

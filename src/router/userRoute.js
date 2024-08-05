@@ -5,19 +5,22 @@ const {
   register,
   login,
   changePassword,
+  queryUserInfo,
 } = require("../controller/userController");
 // 导入中间件
 const {
-  userValidator, // 用于验证用户输入数据的中间件
   verifyUserExited, // 用于检查用户名是否已存在的中间件
   BcryptPassword, // 用于对用户密码进行加密的中间件
   verifLogin, // 用于验证用户登录数据的中间件
-  verifAdmin,
 } = require("../middleware/userMiddleware");
 const { verildatot } = require("../middleware/genericMiddleware");
-const { auth } = require("../middleware/authMiddleware"); // 用于用户认证的中间件
-const { userFormateError } = require("../constant/errType");
-const { userFormateRules } = require("../constant/rules");
+const { auth, verifAdmin } = require("../middleware/authMiddleware"); // 用于用户认证的中间件
+const { userFormateError, passwordNotError } = require("../constant/errType");
+const {
+  registerRules,
+  loginRules,
+  updateUserRules,
+} = require("../constant/rules");
 // 实例化路由，并设置前缀为 '/user'
 const router = new Router({ prefix: "/user" });
 
@@ -32,7 +35,13 @@ const router = new Router({ prefix: "/user" });
 // 2. `verifyUser`：检查用户名是否已经存在
 // 3. `BcryptPassword`：对用户密码进行加密
 // 4. `register`：调用控制器方法完成用户注册
-router.post("/register",verildatot(userFormateRules,userFormateError), verifyUserExited, BcryptPassword, register);
+router.post(
+  "/register",
+  verildatot(registerRules, userFormateError),
+  verifyUserExited,
+  BcryptPassword,
+  register
+);
 
 // 登录接口
 // POST /user/login
@@ -42,7 +51,7 @@ router.post("/register",verildatot(userFormateRules,userFormateError), verifyUse
 // 3. `login`：调用控制器方法完成用户登录
 router.post(
   "/login",
-  verildatot(userFormateRules, userFormateError),
+  verildatot(loginRules, userFormateError),
   verifLogin,
   login
 );
@@ -53,7 +62,7 @@ router.post(
 // 1. `auth`：认证用户，确保请求者已经登录
 // 2. `BcryptPassword`：对新密码进行加密
 // 3. `changePassword`：调用控制器方法完成密码修改
-router.patch("/", auth, BcryptPassword, changePassword);
+router.patch("/:id", auth, BcryptPassword, changePassword);
 
 // 管理员登录接口
 // POST /user/admin
@@ -64,11 +73,13 @@ router.patch("/", auth, BcryptPassword, changePassword);
 // 4. `login`：调用控制器方法完成管理员登录
 router.post(
   "/admin",
-  verildatot(userFormateRules, userFormateError),
+  verildatot(loginRules, userFormateError),
   verifLogin,
   verifAdmin,
   login
 );
 
+router.post("/", auth, queryUserInfo);
 // 导出路由模块
+
 module.exports = router;

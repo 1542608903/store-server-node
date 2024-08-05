@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术栈概览</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .intro {
+            margin-bottom: 20px;
+        }
+        p {
+            text-indent: 2em; /* 首行缩进 2 个字符 */
+        }
+    </style>
+</head>
+<body>
+    <h1>技术栈概览</h1>
+    
+    <div class="intro">
+        <h2>商城项目介绍</h2>
+        <p>该商城项目是一个基于 Koa 框架构建的电子商务平台，旨在为用户提供一个功能全面的在线购物体验。项目支持用户注册、登录、密码管理以及商品浏览、搜索和购买功能。用户可以查看商品详情，添加商品到购物车，并进行订单管理。系统采用 Sequelize ORM 进行数据管理，使用 MySQL 数据库存储用户信息和商品数据。项目还集成了 Swagger 用于 API 文档生成和测试，并且提供了完善的错误处理和参数验证机制。通过此项目，用户能够享受到流畅、安全的购物体验，同时也为开发者提供了清晰的 API 接口文档。</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>技术</th>
+                <th>版本</th>
+                <th>用途</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>BcryptJS</td>
+                <td>^2.4.3</td>
+                <td>密码加密</td>
+            </tr>
+            <tr>
+                <td>Dotenv</td>
+                <td>^16.4.5</td>
+                <td>加载环境变量</td>
+            </tr>
+            <tr>
+                <td>JsonWebToken</td>
+                <td>^9.0.2</td>
+                <td>JSON Web Token（JWT）生成与验证</td>
+            </tr>
+            <tr>
+                <td>Koa</td>
+                <td>^2.15.3</td>
+                <td>Node.js Web 框架</td>
+            </tr>
+            <tr>
+                <td>Koa-Body</td>
+                <td>^6.0.1</td>
+                <td>处理请求体（multipart/form-data, JSON, etc.）</td>
+            </tr>
+            <tr>
+                <td>Koa-Parameter</td>
+                <td>^3.0.1</td>
+                <td>请求参数验证</td>
+            </tr>
+            <tr>
+                <td>Koa-Router</td>
+                <td>^12.0.1</td>
+                <td>Koa 路由管理</td>
+            </tr>
+            <tr>
+                <td>Koa-Static</td>
+                <td>^5.0.0</td>
+                <td>服务静态文件</td>
+            </tr>
+            <tr>
+                <td>Koa2-Cors</td>
+                <td>^2.0.6</td>
+                <td>跨域资源共享</td>
+            </tr>
+            <tr>
+                <td>MySQL2</td>
+                <td>^3.11.0</td>
+                <td>MySQL 数据库驱动</td>
+            </tr>
+            <tr>
+                <td>Sequelize</td>
+                <td>^6.37.3</td>
+                <td>ORM（对象关系映射）库</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
