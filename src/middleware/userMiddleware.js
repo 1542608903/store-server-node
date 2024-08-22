@@ -17,7 +17,6 @@ const { hashPassword, comparePassword } = require("../utilst/bcrypt");
  */
 const verifyUserExited = async (ctx, next) => {
   const { password, ...user } = ctx.request.body;
-
   // 合理性判断
   try {
     const res = await getUserInfo(user);

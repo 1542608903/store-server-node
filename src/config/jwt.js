@@ -31,8 +31,17 @@ const setRefreshToken = async (user, times) => {
   // 使用jwt.sign生成长期刷新令牌，并指定过期时间
   return jwt.sign(user, JWT_SECRET, { expiresIn: convertToSeconds(times) });
 };
-
+/**
+ * 
+ * @param {string} token 用户携带的
+ * @param {string} secret 系统设置的
+ * @returns 
+ */
+const verifySecret =async(token,secret)=>{
+  return jwt.verify(token,secret);
+}
 module.exports = {
   setAccessToken, // 导出生成短期访问令牌的函数
   setRefreshToken, // 导出生成长期刷新令牌的函数
+  verifySecret,
 };

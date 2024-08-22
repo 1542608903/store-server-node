@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken"); // 导入 jsonwebtoken 库
+const { verifySecret } = require("../config/jwt");
 const { JWT_SECRET } = require("../config/config.default"); // 导入 JWT 秘钥
 const {
   TokenExpiredError,
@@ -28,9 +28,11 @@ const auth = async (ctx, next) => {
     const token = authorization.replace("Bearer ", "");
 
     // 验证 token 并解码，解码后的信息包含在 payload 中（如 id, user_name, is_admin 等）
-    const user = jwt.verify(token, JWT_SECRET);
-
+    // const user = verifySecret(token, JWT_SECRET);
+    const user =await verifySecret(token, JWT_SECRET);
     // 将解码后的用户信息存储在 ctx.state 中，供后续中间件使用
+    // console.log(user);
+    
     ctx.state.user = user;
   } catch (err) {
     switch (err.name) {
@@ -40,7 +42,6 @@ const auth = async (ctx, next) => {
         return ctx.app.emit("error", JsonWebTokenError, ctx);
     }
   }
-
   // 调用下一个中间件
   await next();
 };
@@ -52,7 +53,9 @@ const auth = async (ctx, next) => {
  * @returns {Promise<void>}
  */
 const verifAdmin = async (ctx, next) => {
-  const { user_name } = ctx.state.user;
+  
+  const { user_name } = await ctx.state.user;
+   
   try {
     const res = await isAdmin(user_name);
     if (res === null) {

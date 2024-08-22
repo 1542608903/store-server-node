@@ -4,7 +4,7 @@ const {
   updateById,
 } = require("../service/userService");
 const { setRefreshToken, setAccessToken } = require("../config/jwt");
-
+const { convertToFormattedTime  } = require("../utilst/convertToSeconds");
 class UseContrller {
   /**
    * 用户注册方法
@@ -15,8 +15,7 @@ class UseContrller {
   async register(ctx) {
     //1.获取数据
     const user = ctx.request.body;
-    console.log(user);
-
+    user.avatar = "https://pure-admin.github.io/pure-admin-doc/img/favicon.ico";
     //2.操作数据库
     const { password, ...res } = await createUser(user);
 
@@ -34,49 +33,30 @@ class UseContrller {
    * @param {Function} next - Koa 的下一个中间件函数
    * @returns {Promise<void>}
    */
-  // async login(ctx) {
-  //   const { user_name } = ctx.request.body;
-
-  //   try {
-  //     //获取用户信息
-  //     const { password, ...userInfo } = await getUserInfo({ user_name });
-
-  //     const [accessToken, rfreshToken] = await Promise.all([
-  //       setAccessToken(userInfo, "1h"),
-  //       setRefreshToken(userInfo, "1d"),
-  //     ]);
-  //     ctx.body = {
-  //       code: 0,
-  //       message: "登录成功",
-  //       result: {
-  //         ...userInfo,
-  //         accessToken: accessToken,
-  //         rfreshToken: rfreshToken,
-  //       },
-  //     };
-  //   } catch (err) {
-  //     return console.error("登录失败", err);
-  //   }
-  // }
   async login(ctx) {
     const { user_name } = ctx.request.body;
-  
+
     try {
       // 获取用户信息
       const { password, ...userInfo } = await getUserInfo({ user_name });
-  
-      const [{ token: accessToken, expiryTimestamp: accessExpiry }, rfreshToken] = await Promise.all([
+
+      const [
+        { token: accessToken, expiryTimestamp: accessExpiry },
+        rfreshToken,
+      ] = await Promise.all([
         setAccessToken(userInfo, "1h"),
         setRefreshToken(userInfo, "1d"),
       ]);
-  
+
+      const time = new Date(accessExpiry * 1000).toISOString();
+
       ctx.body = {
         code: 0,
         message: "登录成功",
         result: {
           ...userInfo,
           accessToken: accessToken,
-          expiry: new Date(accessExpiry * 1000).toISOString(), // 转换为ISO时间格式
+          expiry: convertToFormattedTime(time), // 转换为ISO时间格式
           rfreshToken: rfreshToken,
         },
       };
@@ -89,7 +69,7 @@ class UseContrller {
       console.error("登录失败", err);
     }
   }
-  
+
   /**
    * 用户修改密码方法
    * @param {Object} ctx
@@ -123,13 +103,13 @@ class UseContrller {
 
   async queryUserInfo(ctx) {
     const user = ctx.request.body;
-    const res = await getUserInfo(user);
+    const { password, ...res } = await getUserInfo(user);
 
     if (!res) {
       return (ctx.body = {
         code: "10008",
-        message: "查询用户信息失败",
-        result: res,
+        message: "用户信息不存在",
+        result: "",
       });
     }
     ctx.body = {
