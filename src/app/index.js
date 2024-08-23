@@ -5,12 +5,13 @@ const KoaStatic = require("koa-static");
 const errHandler = require("./errHandler");
 const router = require("../router");
 const parameter = require("koa-parameter");
-const cors = require("koa2-cors");
+// const cors = require("koa2-cors");
 
+// 创建实例
 const app = new Koa();
 
 // 使用 CORS 中间件
-app.use(cors());
+// app.use(cors());
 
 // 文件上传配置
 app.use(

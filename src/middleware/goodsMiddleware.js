@@ -43,6 +43,7 @@ const checkGoodsExists = async (ctx, next) => {
         ctx.app.emit('error', invalidGoodsID, ctx);
     }
 };
+
 module.exports = {
     verildatot,
     checkGoodsExists,

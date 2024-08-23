@@ -1,11 +1,11 @@
-const { verifySecret } = require("../config/jwt");
+const { verifySecret, createToken } = require("../config/jwt");
 const { JWT_SECRET } = require("../config/config.default"); // 导入 JWT 秘钥
 const {
   TokenExpiredError,
   JsonWebTokenError,
   NullTokenError,
   ontAdmin,
-  userLoginError,
+  adminError,
 } = require("../constant/errType"); // 导入错误类型
 const { isAdmin } = require("../service/userService");
 
@@ -22,17 +22,10 @@ const auth = async (ctx, next) => {
   if (!authorization || !authorization.startsWith("Bearer ")) {
     return ctx.app.emit("error", NullTokenError, ctx);
   }
-
   try {
     // 去掉 'Bearer ' 前缀，提取实际的 token 值
     const token = authorization.replace("Bearer ", "");
-
-    // 验证 token 并解码，解码后的信息包含在 payload 中（如 id, user_name, is_admin 等）
-    // const user = verifySecret(token, JWT_SECRET);
-    const user =await verifySecret(token, JWT_SECRET);
-    // 将解码后的用户信息存储在 ctx.state 中，供后续中间件使用
-    // console.log(user);
-    
+    const user = await verifySecret(token, JWT_SECRET);
     ctx.state.user = user;
   } catch (err) {
     switch (err.name) {
@@ -53,9 +46,8 @@ const auth = async (ctx, next) => {
  * @returns {Promise<void>}
  */
 const verifAdmin = async (ctx, next) => {
-  
   const { user_name } = await ctx.state.user;
-   
+
   try {
     const res = await isAdmin(user_name);
     if (res === null) {
@@ -64,11 +56,56 @@ const verifAdmin = async (ctx, next) => {
     await next();
   } catch (err) {
     console.error("错误", err);
-    return ctx.app.emit("error", userLoginError, ctx);
+    return ctx.app.emit("error", adminError, ctx);
+  }
+};
+
+//刷新token的中间件
+const refreshToken = async (ctx, next) => {
+  const { authorization } = ctx.request.header;
+
+  if (!authorization) {
+    return ctx.app.emit("error", NullTokenError, ctx);
+  }
+  try {
+    const token = authorization.replace("Bearer ", "");
+    const { iat, exp, ...user } = await verifySecret(token, JWT_SECRET);
+    ctx.state.user = user;
+    console.log(user);
+
+    // 刷新token
+    // 刷新token
+    const accessToken = await createToken(user, 20 * 60);
+    const refreshToken = await createToken(user, 30 * 60);
+
+    const accessExpiry = Math.floor(Date.now() / 1000) + 20 * 60; // 计算access token到期时间
+    const refreshExpiry = Math.floor(Date.now() / 1000) + 30 * 60; // 计算refresh token到期时间
+
+    ctx.body = {
+      code: 0,
+      message: "刷新成功",
+      result: {
+        accessToken: accessToken,
+        rfreshToken: refreshToken,
+        accessExpiry,
+        refreshExpiry,
+      },
+    };
+    await next();
+  } catch (err) {
+    console.log(err);
+
+    switch (err.name) {
+      case "TokenExpiredError":
+        return ctx.app.emit("error", TokenExpiredError, ctx);
+      case "JsonWebTokenError":
+        return ctx.app.emit("error", JsonWebTokenError, ctx);
+    }
   }
 };
 
 module.exports = {
   auth,
   verifAdmin,
+  refreshToken,
 };

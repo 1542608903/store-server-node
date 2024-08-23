@@ -2,9 +2,9 @@ const {
   createUser,
   getUserInfo,
   updateById,
+  findAllUser,
 } = require("../service/userService");
-const { setRefreshToken, setAccessToken } = require("../config/jwt");
-const { convertToFormattedTime  } = require("../utilst/convertToSeconds");
+const { createToken } = require("../config/jwt");
 class UseContrller {
   /**
    * 用户注册方法
@@ -15,7 +15,8 @@ class UseContrller {
   async register(ctx) {
     //1.获取数据
     const user = ctx.request.body;
-    user.avatar = "https://pure-admin.github.io/pure-admin-doc/img/favicon.ico";
+    user.avatar =
+      "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png";
     //2.操作数据库
     const { password, ...res } = await createUser(user);
 
@@ -38,26 +39,33 @@ class UseContrller {
 
     try {
       // 获取用户信息
-      const { password, ...userInfo } = await getUserInfo({ user_name });
+      const { password, avatar, nik_name, is_admin, ...user } =
+        await getUserInfo({ user_name });
 
-      const [
-        { token: accessToken, expiryTimestamp: accessExpiry },
-        rfreshToken,
-      ] = await Promise.all([
-        setAccessToken(userInfo, "1h"),
-        setRefreshToken(userInfo, "1d"),
-      ]);
+      // 刷新token
+      const accessToken = await createToken(user, 20 * 60);
+      const refreshToken = await createToken(user, 30 * 60);
 
-      const time = new Date(accessExpiry * 1000).toISOString();
+      const accessExpiry = Math.floor(Date.now() / 1000) + 20 * 60; // 计算access token到期时间
+      const refreshExpiry = Math.floor(Date.now() / 1000) + 30 * 60; // 计算refresh token到期时间
+      // 获取当前毫秒数
+      const currentTime = Math.floor(Date.now() / 1000);
+      console.log(currentTime);
 
       ctx.body = {
         code: 0,
         message: "登录成功",
         result: {
-          ...userInfo,
+          user: {
+            avatar,
+            nik_name,
+            is_admin,
+            ...user,
+          },
           accessToken: accessToken,
-          expiry: convertToFormattedTime(time), // 转换为ISO时间格式
-          rfreshToken: rfreshToken,
+          rfreshToken: refreshToken,
+          accessExpiry,
+          refreshExpiry,
         },
       };
     } catch (err) {
@@ -112,6 +120,21 @@ class UseContrller {
         result: "",
       });
     }
+    ctx.body = {
+      code: 0,
+      message: "查询成功",
+      result: res,
+    };
+  }
+  // 获取所有用户的控制器
+  async getAllUser(ctx) {
+    const { pageNum, pageSize } = ctx.request.body;
+
+    console.log(pageNum, pageSize);
+
+    const res = await findAllUser(pageSize, pageNum);
+    console.log(res);
+
     ctx.body = {
       code: 0,
       message: "查询成功",

@@ -24,9 +24,19 @@ module.exports = {
     message: "用户登录失败",
     result: "",
   },
+  passwordError: {
+    code: "10006",
+    message: "密码错误",
+    result: "",
+  },
   invalidPasswordError: {
     code: "10006",
-    message: "密码无效",
+    message: "密码错误",
+    result: "",
+  },
+  adminError: {
+    code: "10006",
+    message: "管理认证错误",
     result: "",
   },
   passwordNotError: {
@@ -44,14 +54,15 @@ module.exports = {
     message: "token已过期",
     result: "",
   },
+  // token
   JsonWebTokenError: {
     code: "10102",
-    message: "token错误",
+    message: "token不存在",
     result: "",
   },
   NullTokenError: {
     code: "10103",
-    message: "未携带 token或者格式错误",
+    message: "未携带token",
     result: "",
   },
   hasNotAdminPermission: {

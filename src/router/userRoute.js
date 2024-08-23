@@ -6,6 +6,7 @@ const {
   login,
   changePassword,
   queryUserInfo,
+  getAllUser,
 } = require("../controller/userController");
 // 导入中间件
 const {
@@ -14,14 +15,15 @@ const {
   verifLogin, // 用于验证用户登录数据的中间件
 } = require("../middleware/userMiddleware");
 const { verildatot } = require("../middleware/genericMiddleware");
-const { auth, verifAdmin } = require("../middleware/authMiddleware"); // 用于用户认证的中间件
-const { userFormateError, passwordNotError } = require("../constant/errType");
 const {
-  registerRules,
-  loginRules,
-  updateUserRules,
-} = require("../constant/rules");
+  auth,
+  verifAdmin,
+  refreshToken,
+} = require("../middleware/authMiddleware"); // 用于用户认证的中间件
+const { userFormateError } = require("../constant/errType");
+const { registerRules, loginRules } = require("../constant/rules");
 // 实例化路由，并设置前缀为 '/user'
+
 const router = new Router({ prefix: "/user" });
 
 /**
@@ -32,10 +34,10 @@ const router = new Router({ prefix: "/user" });
 // POST /user/register
 router.post(
   "/register",
-  verildatot(registerRules, userFormateError),//使用通用中间件验证请求体中的用户数据是否合法
-  verifyUserExited,//检查用户名是否已经存在
-  BcryptPassword,//对用户密码进行加密
-  register//调用控制器方法完成用户注册
+  verildatot(registerRules, userFormateError), //使用通用中间件验证请求体中的用户数据是否合法
+  verifyUserExited, //检查用户名是否已经存在
+  BcryptPassword, //对用户密码进行加密
+  register //调用控制器方法完成用户注册
 );
 
 // 登录接口
@@ -60,8 +62,10 @@ router.post(
   login
 );
 
-router.post("/", auth,verifAdmin, queryUserInfo);
+router.post("/", auth, verifAdmin, queryUserInfo);
 
+router.post("/all", auth, verifAdmin, getAllUser);
 
+router.post("/refresh_token", refreshToken);
 // 导出路由模块
 module.exports = router;

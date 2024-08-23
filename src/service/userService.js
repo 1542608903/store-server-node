@@ -1,3 +1,4 @@
+const { findAll } = require("../controller/addressController");
 const User = require("../model/user");
 const { Op } = require("sequelize");
 class UserService {
@@ -83,6 +84,38 @@ class UserService {
       },
     });
     return res ? res.dataValues : null;
+  }
+  /**
+   * 查询所有用户
+   * @param {number} [pageSize=20] - 每页大小
+   * @param {number} [pageNum=1] - 页码
+   * @returns {Promise<Array<Object>>} - 返回用户数据数组
+   */
+  async findAllUser(pageSize = 20, pageNum = 1) {
+    pageSize = Math.max(1, parseInt(pageSize, 10));
+    pageNum = Math.max(1, parseInt(pageNum, 10));
+
+    try {
+      const offset = (pageNum - 1) * pageSize;
+      const limit = pageSize;
+      const res = await User.findAll({
+        attributes: [
+          "id",
+          "avatar",
+          "nik_name",
+          "user_emil",
+          "user_name",
+          "is_admin",
+        ],
+        limit: limit,
+        offset: offset,
+      });
+
+      return res.map((user) => user.dataValues);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      throw error;
+    }
   }
 }
 
