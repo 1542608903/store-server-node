@@ -4,8 +4,9 @@ const {
   deleteOrderById,
   updateOrderStatus,
   orderSearch,
+  findAllOrderAddressByUserId,
 } = require("../service/orderService");
-const { getOrderNumber, mapItemsToOrderItems } = require("../utilst");
+const { getOrderNumber, mapItemsToOrderItems } = require("../utils");
 const {
   creatOrderError,
   deleteOrderError,
@@ -118,6 +119,19 @@ class OrderController {
     ctx.body = {
       code: 0,
       message: "搜索订单成功",
+      result: res,
+    };
+  }
+  /**
+   *
+   * @param {*} ctx
+   */
+  async findAllOrderAddress(ctx) {
+    const res = await findAllOrderAddressByUserId();
+    console.log(res);
+    ctx.body = {
+      code: 0,
+      message: "获取地址成功",
       result: res,
     };
   }

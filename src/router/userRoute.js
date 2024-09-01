@@ -13,6 +13,8 @@ const {
   verifyUserExited, // 用于检查用户名是否已存在的中间件
   BcryptPassword, // 用于对用户密码进行加密的中间件
   verifLogin, // 用于验证用户登录数据的中间件
+  verifyPassword,
+  verifyUser,
 } = require("../middleware/userMiddleware");
 const { verildatot } = require("../middleware/genericMiddleware");
 const {
@@ -45,6 +47,8 @@ router.post(
 router.post(
   "/login",
   verildatot(loginRules, userFormateError),
+  verifyUser,
+  verifyPassword,
   verifLogin,
   login
 );
@@ -58,6 +62,8 @@ router.patch("/:id", auth, BcryptPassword, changePassword);
 router.post(
   "/admin",
   verildatot(loginRules, userFormateError),
+  verifyUser,
+  verifyPassword,
   verifLogin,
   login
 );

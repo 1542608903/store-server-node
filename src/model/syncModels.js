@@ -5,20 +5,24 @@ const Address = require("./address");
 const Order = require("./order");
 const OrderItem = require("./orderItem");
 
-// 定义关联关系
+// 用户和订单关联关系
 User.hasMany(Order, { foreignKey: "user_id" });
 Order.belongsTo(User, { foreignKey: "user_id" });
 
-
+// 订单与订单项关联关系
 Order.hasMany(OrderItem, { foreignKey: "order_id" });
 OrderItem.belongsTo(Order, { foreignKey: "order_id" });
 
-// Goods.hasMany(Cart, { foreignKey: "goods_id" });
+// 用户和地址关联关系
+User.hasMany(Address, { foreignKey: "user_id" });
+Address.belongsTo(User, { foreignKey: "user_id" });
+
 Cart.belongsTo(Goods, {
   foreignKey: "goods_id",
   as: "goods_info",
 });
 
+// 订单项和商品关联关系
 Goods.hasMany(OrderItem, { foreignKey: "goods_id" });
 OrderItem.belongsTo(Goods, { foreignKey: "goods_id" });
 

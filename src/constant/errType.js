@@ -1,4 +1,10 @@
+const { FILE_TYPE } = require("../config/config.default");
 module.exports = {
+  userRegisterError: {
+    code: "10000",
+    message: "用户注册错误",
+    result: "",
+  },
   userFormateError: {
     code: "10001",
     message: "用户格式错误",
@@ -51,18 +57,23 @@ module.exports = {
   },
   TokenExpiredError: {
     code: "10101",
-    message: "token已过期",
+    message: "身份已过期",
     result: "",
   },
   // token
   JsonWebTokenError: {
     code: "10102",
-    message: "token不存在",
+    message: "身份不存在",
     result: "",
   },
   NullTokenError: {
     code: "10103",
     message: "未携带token",
+    result: "",
+  },
+  refreshTokenError: {
+    code: "10106",
+    message: "刷新token过期",
     result: "",
   },
   hasNotAdminPermission: {
@@ -75,14 +86,15 @@ module.exports = {
     message: "你不是管理员",
     result: "",
   },
+
   fileUploadError: {
     code: "10201",
-    message: "图片上传失败",
+    message: "文件上传失败",
     result: "",
   },
   unsupportedFileType: {
     code: "10202",
-    message: "图片仅支持jpeg和png",
+    message: `仅支持：${FILE_TYPE}`,
     result: {},
   },
   goodsFormatError: {

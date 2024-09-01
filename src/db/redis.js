@@ -10,9 +10,6 @@ const redisClient = redis
     host: REDIS_HOST,
     port: REDIS_PORT,
     // password: REDIS_PASSWORD,
-
-
-    
   })
   .on("error", (err) => console.log("Redis Client Error", err))
   .connect((res) => console.log("连接成功redis", res));

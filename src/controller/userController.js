@@ -15,8 +15,11 @@ class UseContrller {
   async register(ctx) {
     //1.获取数据
     const user = ctx.request.body;
-    user.avatar =
-      "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png";
+    console.log(user);
+    if (!user.avatar) {
+      user.avatar =
+        "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png";
+    }
     //2.操作数据库
     const { password, ...res } = await createUser(user);
 
@@ -24,7 +27,7 @@ class UseContrller {
       code: "0",
       message: "用户注册成功",
       result: {
-        user_info: res,
+        user: res,
       },
     });
   }
@@ -41,17 +44,9 @@ class UseContrller {
       // 获取用户信息
       const { password, avatar, nik_name, is_admin, ...user } =
         await getUserInfo({ user_name });
-
       // 刷新token
-      const accessToken = await createToken(user, 20 * 60);
-      const refreshToken = await createToken(user, 30 * 60);
-
-      const accessExpiry = Math.floor(Date.now() / 1000) + 20 * 60; // 计算access token到期时间
-      const refreshExpiry = Math.floor(Date.now() / 1000) + 30 * 60; // 计算refresh token到期时间
-      // 获取当前毫秒数
-      const currentTime = Math.floor(Date.now() / 1000);
-      console.log(currentTime);
-
+      const accessToken = await createToken(user, "7d");
+      const refreshToken = await createToken(user, "8d");
       ctx.body = {
         code: 0,
         message: "登录成功",
@@ -64,8 +59,6 @@ class UseContrller {
           },
           accessToken: accessToken,
           rfreshToken: refreshToken,
-          accessExpiry,
-          refreshExpiry,
         },
       };
     } catch (err) {
@@ -89,8 +82,6 @@ class UseContrller {
     const { id } = ctx.state.user;
     const user = ctx.request.body;
     user["id"] = id;
-    console.log(user);
-
     //2.更新到数据库
     const res = await updateById(user);
     //3.返回结果
@@ -128,12 +119,10 @@ class UseContrller {
   }
   // 获取所有用户的控制器
   async getAllUser(ctx) {
-    const { pageNum, pageSize } = ctx.request.body;
-
-    console.log(pageNum, pageSize);
+    const pageNum = ctx.request.body?.pageNum;
+    const pageSize = ctx.request.body?.pageSize;
 
     const res = await findAllUser(pageSize, pageNum);
-    console.log(res);
 
     ctx.body = {
       code: 0,

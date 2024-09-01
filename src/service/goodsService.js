@@ -79,7 +79,7 @@ class GoodsService {
    * @property {number} total - 商品总数
    * @property {Array<Goods>} list - 商品列表
    */
-  async findGoods(pageNum, pageSize) {
+  async findGoods(pageNum = 1, pageSize = 10) {
     // 计算分页的偏移量
     const offset = (pageNum - 1) * pageSize;
     // 使用 findAndCountAll 方法进行分页查询

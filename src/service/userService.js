@@ -92,9 +92,6 @@ class UserService {
    * @returns {Promise<Array<Object>>} - 返回用户数据数组
    */
   async findAllUser(pageSize = 20, pageNum = 1) {
-    pageSize = Math.max(1, parseInt(pageSize, 10));
-    pageNum = Math.max(1, parseInt(pageNum, 10));
-
     try {
       const offset = (pageNum - 1) * pageSize;
       const limit = pageSize;
@@ -106,6 +103,8 @@ class UserService {
           "user_emil",
           "user_name",
           "is_admin",
+          "createdAt",
+          "updatedAt",
         ],
         limit: limit,
         offset: offset,

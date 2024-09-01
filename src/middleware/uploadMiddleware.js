@@ -10,7 +10,7 @@ const fileValidator = (allowedTypes) => {
         try {
             const { files } = ctx.request; // 获取上传的文件
 
-            if (!files || !files.file) {
+            if (!files.file) {
                 unsupportedFileType.result = '未找到上传的文件';
                 return ctx.app.emit('error', unsupportedFileType, ctx);
             }
@@ -27,9 +27,9 @@ const fileValidator = (allowedTypes) => {
                 });
                 return ctx.app.emit('error', unsupportedFileType, ctx);
             }
-
+            // 获取文件的后缀名
             const fileType = file.mimetype.split('/')[1];
-            console.log("切割",fileType.split("/"));
+
             // 验证文件类型
             if (!allowedTypes.includes(fileType)) {
                 // 删除无效的文件

@@ -6,8 +6,9 @@ const {
   userLoginError,
   invalidPasswordError,
   ontAdmin,
+  passwordError,
 } = require("../constant/errType");
-const { hashPassword, comparePassword } = require("../utilst/bcrypt");
+const { hashPassword, comparePassword } = require("../utils/bcrypt");
 
 /**
  * 判断用户是否存在
@@ -16,11 +17,11 @@ const { hashPassword, comparePassword } = require("../utilst/bcrypt");
  * @returns {Promise<void>}
  */
 const verifyUserExited = async (ctx, next) => {
-  const { password, ...user } = ctx.request.body;
   // 合理性判断
   try {
+    const { ...user } = ctx.request.body;
     const res = await getUserInfo(user);
-    if (res && res.user_name === user.user_name) {
+    if (res.user_name === user.user_name) {
       return ctx.app.emit("error", userAlreadyExited, ctx);
     }
   } catch (err) {
@@ -36,16 +37,15 @@ const verifyUserExited = async (ctx, next) => {
  * @returns {Promise<void>}
  */
 const BcryptPassword = async (ctx, next) => {
-  const { password } = ctx.request.body;
-  if (!password) return 0;
   try {
-    //加哈希盐
-    const hashedPassword = await hashPassword(password, 10);
+    const { password } = ctx.request.body;
+    // 加哈希盐
+    const hashedPassword = await hashPassword(password);
     // 修改中间件
     ctx.request.body.password = hashedPassword;
     await next();
   } catch (err) {
-    console.error("生成哈希密码时出错", err);
+    return ctx.app.emit("error", userRegisterError, ctx); // Modify error handling as needed
   }
 };
 
@@ -60,14 +60,9 @@ const verifLogin = async (ctx, next) => {
     // 明文密码
     const { password, ...user } = ctx.request.body;
     // 哈希密码
-    const { password: hashedPassword, ...res } = await getUserInfo(user);
+    const { password: hashedPassword } = await getUserInfo(user);
 
-    // 1. 判断用户是否存在
-    if (!hashedPassword) {
-      return ctx.app.emit("error", notUserExited, ctx);
-    }
-
-    // 2. 密码匹配
+    //密码匹配
     const match = await comparePassword(password, hashedPassword);
 
     if (!match) {
@@ -79,9 +74,38 @@ const verifLogin = async (ctx, next) => {
     return ctx.app.emit("error", userLoginError, ctx);
   }
 };
-
+// 检测账号是否存在的方法
+const verifyUser = async (ctx, next) => {
+  try {
+    const { ...user } = ctx.request.body;
+    const res = await getUserInfo(user);
+    if (res.user_name === user.user_name) {
+      return await next();
+    }
+  } catch (err) {
+    return ctx.app.emit("error", notUserExited, ctx);
+  }
+  await next();
+};
+//检测密码身份正确
+const verifyPassword = async (ctx, next) => {
+  try {
+    const { password, ...user } = ctx.request.body;
+    const { password: hashedPassword } = await getUserInfo(user);
+    const match = await comparePassword(password, hashedPassword);
+    if (!match) {
+      return ctx.app.emit("error", passwordError, ctx);
+    }
+    await next();
+  } catch (err) {
+    return ctx.app.emit("error", passwordError, ctx);
+  }
+};
 module.exports = {
   verifyUserExited,
   BcryptPassword,
   verifLogin,
+  verifyUser,
+  verifyPassword,
+
 };
