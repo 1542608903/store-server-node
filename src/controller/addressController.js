@@ -8,7 +8,6 @@ const {
 } = require("../service/addressService");
 const { addressUpdateError, addressNotExited } = require("../constant/errType");
 class AddressController {
-  
   /**
    *
    *
@@ -20,23 +19,22 @@ class AddressController {
   async create(ctx) {
     const user_id = ctx.state.user.id;
     const { consignee, phone, address } = ctx.request.body;
-
     const data = { user_id, consignee, phone, address };
-    const res = await addressCreate(data);
+    const { updatedAt, createdAt, ...res } = await addressCreate(data);
     ctx.body = {
       code: 0,
       messages: "添加地址成功",
-      result: res,
+      result: { address: res },
     };
   }
-  
+
   /**
    *
    *
    * @author DMB
    * @date 2024-08-01 19:08:55
    * @param {*} ctx
-   * @returns {*} 
+   * @returns {*}
    * @memberof AddressController
    */
   async findAll(ctx) {
@@ -50,20 +48,22 @@ class AddressController {
       ctx.body = {
         code: 0,
         messages: "查询所有地址成功",
-        result: res,
+        result: {
+          addressList: res,
+        },
       };
     } catch (err) {
       console.error("error", err);
     }
   }
-  
+
   /**
    *
    *
    * @author DMB
    * @date 2024-08-01 19:08:49
    * @param {*} ctx
-   * @returns {*} 
+   * @returns {*}
    * @memberof AddressController
    */
   async update(ctx) {
@@ -85,7 +85,7 @@ class AddressController {
   async isOnDefault(ctx) {
     const user_id = ctx.state.user.id;
     const { id, is_default } = ctx.request.body;
-    const res = await setDefaultAddress(user_id, id, is_default);
+    const res = await setDefaultAddress(id, user_id, is_default);
     if (res) {
       ctx.body = {
         code: 0,
@@ -94,7 +94,7 @@ class AddressController {
       };
     }
   }
-  
+
   /**
    *
    *
@@ -123,7 +123,6 @@ class AddressController {
   async deleteAddress(ctx) {
     const user_id = ctx.state.user.id;
     const { id } = ctx.params;
-    console.log(id);
     const res = await deleteAddressById(user_id, id);
     ctx.body = {
       code: 0,

@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
-const seq = require("../db/seq"); // 假设你有一个 sequelize 实例文件
-const User = require("../model/user");
+const seq = require("../../db/seq"); // 假设你有一个 sequelize 实例文件
+const User = require("../user/user");
 const Address = seq.define(
   "address",
   {

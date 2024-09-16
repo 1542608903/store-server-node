@@ -1,7 +1,7 @@
-const Order = require("../model/order");
-const OrderItem = require("../model/orderItem");
-const Goods = require("../model/goods");
-const Address = require("../model/address");
+const Order = require("../model/order/order");
+const OrderItem = require("../model/order/orderItem");
+const Goods = require("../model/product/goods");
+const Address = require("../model/address/address");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
 
@@ -11,35 +11,14 @@ class OrderService {
     try {
       // 创建订单
       const res = await Order.create(order, { transaction });
-      const order_id = res.id; // 获取新订单的 ID
 
       // 为每个订单项设置 order_id
       orderItems = orderItems.map((item) => ({
-        ...item,
-        order_id: order_id,
+        order_id: res.id,
+        goods_id: +item.id,
+        price: item.goods_price,
+        quantity: item.quantity,
       }));
-
-      // 查询每个商品的库存
-      const goodsIds = orderItems.map((item) => item.goods_id);
-      const goodsList = await Goods.findAll({
-        where: { id: goodsIds },
-        transaction,
-      });
-
-      // 检查库存是否充足
-      for (const item of orderItems) {
-        const goods = goodsList.find((g) => g.id === item.goods_id);
-        if (!goods || goods.goods_num < item.quantity) {
-          throw new Error(`库存不足: ${item.goods_id}`);
-        }
-      }
-
-      // 更新库存数量
-      for (const item of orderItems) {
-        const goods = goodsList.find((g) => g.id === item.goods_id);
-        goods.goods_num -= item.quantity;
-        await goods.save({ transaction });
-      }
 
       // 创建订单项
       await OrderItem.bulkCreate(orderItems, { transaction });
@@ -50,8 +29,36 @@ class OrderService {
       return res.dataValues; // 返回订单详细信息
     } catch (err) {
       // 确保回滚事务
+      console.log(err);
+
       if (transaction) await transaction.rollback();
       throw err; // 抛出错误
+    }
+  }
+
+  // 查询某个用户下单的商品信息
+
+  async getUserOrdersWithProducts(user_id) {
+    try {
+      const orders = await Order.findAll({
+        where: { user_id }, // 查询指定的订单
+        include: [
+          {
+            model: OrderItem, // 包含订单项
+            include: [
+              {
+                model: Goods, // 包含商品信息
+              },
+            ],
+          },
+          {
+            model: Address,
+          },
+        ],
+      });
+      return orders;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -147,23 +154,26 @@ class OrderService {
   }
   async findAllOrderAddressByUserId() {
     try {
-      // 获取所有用户下单的订单地址
-      const res = await Order.findAll({
+      // 获取所有用户下单的订单地址以及订单物品信息
+      const orders = await Order.findAll({
         include: [
           {
-            model: OrderItem,
+            model: Address,
             include: [
               {
-                model: Goods,
+                model: OrderItem,
+                include: [
+                  {
+                    model: Goods,
+                  },
+                ],
               },
             ],
           },
-          {
-            model: Address,
-          },
         ],
       });
-      return console.log(res);
+      const orderData = orders.map((order) => order.dataValues);
+      return orderData; // 返回订单数据
     } catch (error) {
       console.error("查找订单时出错:", error);
       throw error; // 抛出错误

@@ -1,8 +1,8 @@
 // orderItem.js
 const { DataTypes } = require("sequelize");
-const seq = require("../db/seq");
+const seq = require("../../db/seq");
 const Order = require("./order");
-const Goods = require("./goods");
+const Goods = require("../product/goods");
 
 const OrderItem = seq.define(
   "order_item",

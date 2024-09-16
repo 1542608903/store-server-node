@@ -5,8 +5,8 @@ const {
   JsonWebTokenError,
   NullTokenError,
   ontAdmin,
-  adminError,
   refreshTokenError,
+  serverError,
 } = require("../constant/errType"); // 导入错误类型
 const { isAdmin } = require("../service/userService");
 
@@ -19,7 +19,7 @@ const { isAdmin } = require("../service/userService");
 const auth = async (ctx, next) => {
   try {
     // 从请求头中获取 authorization 字段
-    const { authorization } = ctx.request.header;
+    const authorization = ctx.request.header?.authorization || "";
 
     // 检查是否携带
     if (!authorization) return ctx.app.emit("error", NullTokenError, ctx);
@@ -30,7 +30,6 @@ const auth = async (ctx, next) => {
     // 验证 token 的合法性
     const user = await verifyToken(token, JWT_SECRET);
     ctx.state.user = user;
-
     // 调用下一个中间件
     await next();
   } catch (err) {
@@ -61,7 +60,7 @@ const verifAdmin = async (ctx, next) => {
     await next();
   } catch (err) {
     console.error("错误", err);
-    return ctx.app.emit("error", adminError, ctx);
+    return ctx.app.emit("error", serverError, ctx);
   }
 };
 
@@ -78,7 +77,7 @@ const refreshToken = async (ctx, next) => {
     ctx.state.user = user;
     // 刷新token
     // 刷新token
-    const accessToken = await createToken(user, "60s");
+    const accessToken = await createToken(user, "1h");
     const refreshToken = await createToken(user, "1h");
     // 返回token
     ctx.body = {
@@ -100,8 +99,6 @@ const refreshToken = async (ctx, next) => {
   }
 };
 // 检测token是否过期
-// 判断token是否过期
-// 如果过期，返回错误
 const verifyTokenExpired = async (ctx, next) => {
   try {
     const { authorization } = ctx.request.header;
@@ -113,7 +110,6 @@ const verifyTokenExpired = async (ctx, next) => {
     const { vaild } = await verifyToken(token, JWT_SECRET);
     if (vaild) await next();
   } catch (error) {
-    console.log(error);
     switch (error.name) {
       case "TokenExpiredError":
         return ctx.app.emit("error", TokenExpiredError, ctx);

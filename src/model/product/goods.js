@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const seq = require("../db/seq");
+const seq = require("../../db/seq");
 
 const Goods = seq.define(
   "goods",
@@ -45,6 +45,7 @@ const Goods = seq.define(
     timestamps: true, // 自动添加createdAt和updatedAt字段
     comment: "商品表", // 表的注释
     tableName: "goods",
+    paranoid: true, // 启用软删除
   }
 );
 

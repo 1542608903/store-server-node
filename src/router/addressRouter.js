@@ -30,8 +30,8 @@ router.put(
   update
 );
 
-router.post("/on", auth, verifyDefaultAddress, isOnDefault);
-router.post("/off", auth, verifyDefaultAddress, isOnDefault);
+router.post("/on", auth, isOnDefault);
+router.post("/update_default", auth, isOnDefault);
 router.delete("/:id", auth, deleteAddress);
 
 module.exports = router;

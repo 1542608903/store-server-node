@@ -1,10 +1,10 @@
 const {
   createOrder,
-  findAllOrderByUserId,
   deleteOrderById,
   updateOrderStatus,
   orderSearch,
   findAllOrderAddressByUserId,
+  getUserOrdersWithProducts,
 } = require("../service/orderService");
 const { getOrderNumber, mapItemsToOrderItems } = require("../utils");
 const {
@@ -21,62 +21,60 @@ class OrderController {
    * @returns {Promise<void>}
    */
   async create(ctx) {
-    const user_id = ctx.state.user.id; // 获取用户 ID
-    const address_id = ctx.state.address.id; // 获取用户默认地址
-    const items = ctx.request.body.goods_info; // 获取商品信息
-    const order_number = "DMB" + getOrderNumber(13); // 生成订单号
+    const user_id = ctx.state.user.id;
+    const { id, data, total } = ctx.request.body; // 获取商品信息
 
-    if (!user_id && !address_id) {
-      console.error("没有数据");
-      return 0;
+    // 计算总价
+    let price = 0;
+    data.forEach((item) => {
+      price += item.goods_price * item.quantity;
+    });
+
+    if (price !== total) {
+      return ctx.app.emit("error", creatOrderError, ctx);
     }
-    try {
-      // 计算订单总价
-      const order = {
-        user_id: user_id,
-        address_id: address_id,
-        total_price: items.reduce(
-          (total, item) => total + item.goods_price * item.quantity,
-          0
-        ),
-        order_number: order_number,
-        state: 0, // 订单状态，假设0表示未处理
-      };
+    // 生成订单号
+    const order_number = "DMB" + getOrderNumber(13);
+    const order = {
+      user_id,
+      address_id: id,
+      total_price: price,
+      state: 1,
+      order_number,
+    };
 
-      // 将商品信息映射为订单项
-      const orderItems = mapItemsToOrderItems(items);
-
-      // 创建订单
-      const res = await createOrder(order, orderItems);
-
+    await createOrder(order, data)
+      .then((res) => {
+        ctx.body = {
+          code: 0,
+          message: "订单创建成功",
+          result: res, // 返回创建的订单详细信息
+        };
+      })
+      .catch((err) => {
+        ctx.app.emit("error", creatOrderError, ctx);
+      });
+    await getUserOrdersWithProducts(user_id).then((res) => {
       ctx.body = {
         code: 0,
-        message: "订单创建成功",
+        message: "订单列表",
         result: res, // 返回创建的订单详细信息
       };
-    } catch (err) {
-      console.error("创建订单失败:", err);
-      ctx.app.emit("error", creatOrderError, ctx); // 触发错误事件
-    }
+    });
   }
 
-  /**
-   * 查找用户所有订单
-   * @param {Object} ctx - Koa 的上下文对象
-   * @returns {Promise<void>}
-   */
   async findAllOrder(ctx) {
     const user_id = ctx.state.user.id; // 获取用户 ID
     try {
-      const res = await findAllOrderByUserId(user_id); // 查找用户所有订单
-      ctx.body = {
-        code: 0,
-        message: "获取订单成功",
-        result: res, // 返回订单列表
-      };
+      await getUserOrdersWithProducts(user_id).then((res) => {
+        ctx.body = {
+          code: 0,
+          message: "获取订单成功",
+          result: res, // 返回订单列表
+        };
+      });
     } catch (err) {
-      console.error("获取订单失败:", err);
-      ctx.app.emit("error", verifyOntOrder, ctx); // 触发错误事件
+      ctx.app.emit("error", verifyOntOrder, ctx);
     }
   }
   async deleteOrder(ctx) {
@@ -122,10 +120,6 @@ class OrderController {
       result: res,
     };
   }
-  /**
-   *
-   * @param {*} ctx
-   */
   async findAllOrderAddress(ctx) {
     const res = await findAllOrderAddressByUserId();
     console.log(res);

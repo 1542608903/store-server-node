@@ -1,5 +1,10 @@
 const { FILE_TYPE } = require("../config/config.default");
 module.exports = {
+  serverError: {
+    code: "99999",
+    message: "服务器错误",
+    result: "",
+  },
   userRegisterError: {
     code: "10000",
     message: "用户注册错误",
@@ -15,9 +20,14 @@ module.exports = {
     message: "用户已存在",
     result: "",
   },
+  emailExited: {
+    code: "10003",
+    message: "邮箱存在",
+    result: "",
+  },
   userRegisterError: {
     code: "10003",
-    message: "用户注册错误",
+    message: "用户注册失败",
     result: "",
   },
   notUserExited: {
@@ -45,6 +55,7 @@ module.exports = {
     message: "管理认证错误",
     result: "",
   },
+
   passwordNotError: {
     code: "10007",
     message: "密码不能为空",

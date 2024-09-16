@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
-const seq = require("../db/seq");
-const Goods = require("../model/goods");
+const seq = require("../../db/seq");
+const Goods = require("../product/goods");
 const Cart = seq.define(
   "cart",
   {

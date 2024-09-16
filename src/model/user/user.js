@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const seq = require("../db/seq");
+const seq = require("../../db/seq");
 
 //创建模型
 const User = seq.define(
@@ -10,23 +10,23 @@ const User = seq.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    nik_name: {
+    nick_name: {
       type: DataTypes.STRING,
       //是否为空
       allowNull: true,
-      comment: "用户名称",
+      comment: "名称",
     },
     avatar: {
       type: DataTypes.STRING,
       allowNull: true,
-      comment: "用户头像",
+      comment: "头像",
     },
-    user_emil: {
+    email: {
       type: DataTypes.STRING,
       //是否为空
       allowNull: true,
       unique: true,
-      comment: "用户邮箱",
+      comment: "邮箱",
     },
     user_name: {
       type: DataTypes.STRING,
@@ -53,6 +53,4 @@ const User = seq.define(
     tableName: "users",
   }
 );
-
-// User.sync({ force: true });
 module.exports = User;

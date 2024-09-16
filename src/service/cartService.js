@@ -1,6 +1,6 @@
-const Cart = require('../model/cart');
+const Cart = require('../model/cart/cart');
 const { Op } = require('sequelize');
-const Goods = require('../model/goods');
+const Goods = require('../model/product/goods');
 
 class CartService {
     /**
@@ -39,7 +39,7 @@ class CartService {
             limit: +pageSize,
             include: {
                 model: Goods,
-                as: 'goods_info',
+                as: 'goods',
                 attributes: ['id', 'goods_name', 'goods_price', 'goods_img'],
             },
         })

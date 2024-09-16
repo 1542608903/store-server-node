@@ -1,6 +1,6 @@
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
-const Address = require("../model/address");
+const Address = require("../model/address/address");
 class AddressService {
   /**
    *添加地址服务
@@ -8,17 +8,16 @@ class AddressService {
    * @returns {Object}    -res
    */
   async addressCreate(data) {
-    if (!data) {
-      throw new Error("Invalid input");
-    }
     const { user_id } = data;
     let isDefault = false;
+
     const { count } = await Address.findAndCountAll({ where: { user_id } });
+
     count == 0 ? (isDefault = true) : (isDefault = false);
+
     data["is_default"] = isDefault;
     const res = await Address.create(data);
-
-    return res;
+    return res.dataValues;
   }
 
   /**
@@ -27,8 +26,11 @@ class AddressService {
    * @returns
    */
   async addressFindAll(user_id) {
-    const res = await Address.findAll({ where: { user_id: user_id } });
-    return res ? res : null;
+    const res = await Address.findAll({
+      where: { user_id: user_id },
+      attributes: ["id", "address", "consignee", "phone", "is_default"],
+    });
+    return res;
   }
   /**
    * 更新地址服务
@@ -43,9 +45,8 @@ class AddressService {
   }
 
   async setDefaultAddress(id, user_id, is_default) {
-    const transaction = await seq.transaction(); // 开始事务
-
     try {
+      const transaction = await seq.transaction(); // 开始事务
       // 如果要设置为默认地址，先将该用户的所有地址的 is_default 设置为 false
       if (is_default) {
         await Address.update(
@@ -65,21 +66,18 @@ class AddressService {
       return numberOfAffectedRows > 0;
     } catch (error) {
       await transaction.rollback(); // 回滚事务
+      console.error("Error setting default address:", error); // 使用 console.error 以便于错误追踪
       throw error; // 重新抛出错误，以便调用者能够处理
     }
   }
+
   async defaultAddress(user_id) {
     const is_default = true;
-    const res = await Address.findOne(
-      {
-        where: {
-          [Op.and]: [user_id, is_default],
-        },
+    const res = await Address.findOne({
+      where: {
+        [Op.and]: [user_id, is_default],
       },
-      {
-        limit: 1,
-      }
-    );
+    });
     return res ? res : null;
   }
   async deleteAddressById(user_id, id) {

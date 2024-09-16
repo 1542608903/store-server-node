@@ -1,11 +1,12 @@
 //邮箱域名只能是163.com，qq.com或者42du.cn。
-const emilRules = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+const emilRules =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const phoneRules = /^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/;
 
 module.exports = {
   registerRules: {
     nik_name: { type: "string", required: false },
-    user_emil: {
+    email: {
       type: "string",
       required: true,
       format: emilRules,
@@ -18,8 +19,8 @@ module.exports = {
     password: { type: "string", required: true },
   },
   updateUserRules: {
-    nik_name: { type: "string", required: true },
-    user_emil: {
+    nick_name: { type: "string", required: true },
+    email: {
       type: "string",
       required: true,
       format: emilRules,
@@ -37,8 +38,9 @@ module.exports = {
     consignee: { type: "string" },
     phone: { type: "string", format: phoneRules },
     address: { type: "string" },
+    user_id: { type: "string",required: false},
   },
-  goodsInfoRules: {
+  orderInfoRules: {
     goods_info: {
       type: "array",
       itemType: "object",
@@ -52,6 +54,9 @@ module.exports = {
         quantity: { type: "integer", min: 1, required: true },
       },
       required: true,
+    },
+    id: {
+      id: { type: "string", required: false },
     },
   },
 };

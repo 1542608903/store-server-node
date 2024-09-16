@@ -1,4 +1,4 @@
-const Goods = require("../../model/goods");
+const Goods = require("../../model/product/goods");
 class GoodsServiceImpl {
   async stockStatus(id) {
     const res = await Goods.findOne({

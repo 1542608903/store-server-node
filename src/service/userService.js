@@ -1,5 +1,5 @@
 const { findAll } = require("../controller/addressController");
-const User = require("../model/user");
+const User = require("../model/user/user");
 const { Op } = require("sequelize");
 class UserService {
   /**
@@ -22,28 +22,18 @@ class UserService {
   async getUserInfo(user) {
     // 初始化一个空对象，用于构建查询条件
     const whereOpt = {};
-
     //解构出信息
-    const { id, user_emil, user_name, is_admin } = user;
+    const { id, email, user_name, is_admin } = user;
 
     // 如果变量存在，添加到查询条件中
     if (id) Object.assign(whereOpt, { id });
-    if (user_emil) Object.assign(whereOpt, { user_emil });
+    if (email) Object.assign(whereOpt, { email });
     if (user_name) Object.assign(whereOpt, { user_name });
     if (is_admin) Object.assign(whereOpt, { is_admin });
 
-    // 查询单个用户
+    // 条件查询
     const res = await User.findOne({
-      attributes: [
-        "id",
-        "avatar",
-        "nik_name",
-        "user_emil",
-        "user_name",
-        "password",
-        "is_admin",
-      ], // 要查询的字段
-      where: whereOpt, // 查询条件
+      where: whereOpt,
     });
     return res ? res.dataValues : null;
   }
@@ -56,11 +46,11 @@ class UserService {
   async updateById(user) {
     const whereOpt = {};
     const newUser = {};
-    const { id, nik_name, user_emil, is_admin, password, avatar } = user;
+    const { id, nick_name, email, is_admin, password, avatar } = user;
 
     // 如果变量存在，添加到新用户中
-    if (nik_name) Object.assign(newUser, { nik_name });
-    if (user_emil) Object.assign(newUser, { user_emil });
+    if (nick_name) Object.assign(newUser, { nick_name });
+    if (email) Object.assign(newUser, { email });
     if (avatar) Object.assign(newUser, { avatar });
     if (is_admin) Object.assign(newUser, { is_admin });
     if (password) Object.assign(newUser, { password });
@@ -94,23 +84,26 @@ class UserService {
   async findAllUser(pageSize = 20, pageNum = 1) {
     try {
       const offset = (pageNum - 1) * pageSize;
-      const limit = pageSize;
-      const res = await User.findAll({
+
+      const { count, rows } = await User.findAndCountAll({
         attributes: [
           "id",
           "avatar",
-          "nik_name",
-          "user_emil",
+          "nick_name",
+          "email",
           "user_name",
           "is_admin",
           "createdAt",
           "updatedAt",
         ],
-        limit: limit,
+        limit: pageSize,
         offset: offset,
       });
 
-      return res.map((user) => user.dataValues);
+      return {
+        total: count,
+        users: rows,
+      };
     } catch (error) {
       console.error("Error fetching users:", error);
       throw error;

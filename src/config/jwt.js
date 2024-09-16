@@ -20,6 +20,7 @@ const verifyToken = (token) => {
   const user = jwt.verify(token, JWT_SECRET);
   return { ...user, valid: true };
 };
+
 module.exports = {
   createToken,
   verifyToken,

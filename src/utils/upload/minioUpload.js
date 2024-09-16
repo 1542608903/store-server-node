@@ -5,7 +5,7 @@ const {
   STORAGE_SecretKey,
   STORAGE_AccessKey,
   UPLOAD_TYPE,
-} = require("../config/config.default"); // 从配置文件中获取密钥
+} = require("../../config/config.default"); // 从配置文件中获取密钥
 
 let minioClient;
 

@@ -6,6 +6,11 @@ const errHandler = require("./errHandler");
 const router = require("../router");
 const parameter = require("koa-parameter");
 const { UPLOAD_TYPE } = require("../config/config.default"); // 上传类型
+const { syncModels, dropModels } = require("../model/syncModels");
+
+// 删除在同步模型
+// dropModels();
+// syncModels();
 
 // 创建实例
 const app = new Koa();
@@ -54,7 +59,6 @@ switch (UPLOAD_TYPE) {
 }
 
 // 静态文件服务配置
-// ../public/目录下的所有文件
 app.use(KoaStatic(path.join(__dirname, "../public/")));
 
 app.use(parameter(app));

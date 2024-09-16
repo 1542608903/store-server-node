@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const { fileUploadError } = require("../constant/errType");
-const { minioUpload, deleteMinioImgs } = require("../utils/minioUpload");
+const { minioUpload, deleteMinioImgs } = require("../utils/upload/minioUpload");
 const {
   UPLOAD_TYPE,
   BASEURL,
@@ -10,8 +10,6 @@ const {
 class uploadController {
   /**
    * 处理图片上传
-   * @param {Object} ctx - Koa 上下文对象
-   * @param {Function} next - Koa 的下一个中间件函数
    * @returns {Promise<void>}
    */
   async upload(ctx) {
