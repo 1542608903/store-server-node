@@ -42,8 +42,4 @@ const Cart = seq.define(
     tableName: "carts",
   }
 );
-Cart.belongsTo(Goods, {
-  foreignKey: "goods_id",
-  as: "goods_info",
-});
 module.exports = Cart;

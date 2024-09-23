@@ -6,7 +6,7 @@ const {
   isOnDefault,
   deleteAddress,
 } = require("../controller/addressController");
-const { verildatot } = require("../middleware/genericMiddleware");
+const { validateParams } = require("../middleware/genericMiddleware");
 const { auth } = require("../middleware/authMiddleware"); // 认证用户
 const { verifyDefaultAddress } = require("../middleware/addressMiddleware");
 const { addressFormatError } = require("../constant/errType");
@@ -24,7 +24,7 @@ router.post(
 router.post("/findAll", auth, findAll);
 router.put(
   "/",
-  verildatot(addressFormatRoles, addressFormatError),
+  validateParams(addressFormatRoles, addressFormatError),
   auth,
   verifyDefaultAddress,
   update

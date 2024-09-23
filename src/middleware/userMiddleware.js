@@ -85,8 +85,7 @@ const verifyUser = async (ctx, next) => {
   try {
     const { ...user } = ctx.request.body;
     const res = await getUserInfo(user);
-    console.log(res);
-
+    
     if (res.user_name === user.user_name) {
       await next();
     } else {

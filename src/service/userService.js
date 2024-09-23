@@ -20,49 +20,38 @@ class UserService {
    * @returns {Promise<Object|null>} - 返回用户数据或 null
    */
   async getUserInfo(user) {
-    // 初始化一个空对象，用于构建查询条件
-    const whereOpt = {};
-    //解构出信息
-    const { id, email, user_name, is_admin } = user;
+    // 解构出信息，避免传入 undefined 时出错
+    const { id, email, user_name, is_admin } = user || {};
 
-    // 如果变量存在，添加到查询条件中
-    if (id) Object.assign(whereOpt, { id });
-    if (email) Object.assign(whereOpt, { email });
-    if (user_name) Object.assign(whereOpt, { user_name });
-    if (is_admin) Object.assign(whereOpt, { is_admin });
+    // 条件查询构建（自动忽略 undefined 的值）
+    const whereOpt = {
+      ...(id && { id }),
+      ...(email && { email }),
+      ...(user_name && { user_name }),
+      ...(is_admin && { is_admin }),
+    };
 
-    // 条件查询
+    // 查询用户信息
     const res = await User.findOne({
       where: whereOpt,
     });
-    return res ? res.dataValues : null;
+
+    // 返回查询结果
+    return res?.dataValues || null;
   }
 
   /**
    * 根据用户 ID 更新用户信息
-   * @param {number} user - 用户
-   * @returns {Promise<boolean>} - 返回更新是否成功
+   * @param {number} id 用户ID
+   * @param {object} data 更新数据
+   * @returns {Promise<boolean>} 返回更新是否成功
    */
-  async updateById(user) {
-    const whereOpt = {};
-    const newUser = {};
-    const { id, nick_name, email, is_admin, password, avatar } = user;
-
-    // 如果变量存在，添加到新用户中
-    if (nick_name) Object.assign(newUser, { nick_name });
-    if (email) Object.assign(newUser, { email });
-    if (avatar) Object.assign(newUser, { avatar });
-    if (is_admin) Object.assign(newUser, { is_admin });
-    if (password) Object.assign(newUser, { password });
-
-    // 如果变量存在，添加到查询条件中
-    if (id) Object.assign(whereOpt, { id });
-
+  async updateById(id, data) {
     // 更新用户信息，返回更新操作的结果
-    const res = await User.update(newUser, { where: whereOpt });
+    const res = await User.update(data, { where: { id } });
 
-    // 返回更新是否成功
-    return res[0] > 0 ? true : false;
+    // 判断更新是否成功
+    return res[0] > 0;
   }
   async isAdmin(user_name) {
     const is_admin = true;

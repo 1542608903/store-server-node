@@ -3,9 +3,12 @@ const {
   getUserInfo,
   updateById,
   findAllUser,
-  userCount,
 } = require("../service/userService");
 const { createToken } = require("../config/jwt");
+const {
+  comparePassword,
+  hashPassword,
+} = require("../utils/passwordUtils/bcrypt");
 class UseContrller {
   /**
    * 用户注册方法
@@ -15,14 +18,17 @@ class UseContrller {
     try {
       //1.获取数据
       const user = ctx.request.body;
-      user.avatar ="http://127.0.0.1:8888/online/e88786a0140ef17cf93350e00.png"
+      user.avatar =
+        "http://127.0.0.1:8888/online/e88786a0140ef17cf93350e00.png";
       //2.操作数据库
       const { password, ...res } = await createUser(user);
 
       ctx.body = {
         code: "0",
         message: "用户注册成功",
-        result: {},
+        result: {
+          user: res,
+        },
       };
     } catch (error) {
       // 处理错误并抛出
@@ -37,22 +43,17 @@ class UseContrller {
   async login(ctx) {
     try {
       // 获取用户信息
-      const { user_name } = ctx.request.body;
-      const { password, avatar, nick_name, is_admin, ...user } =
-        await getUserInfo({ user_name });
+      const userInfo = ctx.request.body;
+      const { password, ...user } = await getUserInfo(userInfo);
+      const { id, email, user_name } = user;
       // 刷新token
-      const accessToken = await createToken(user, "1h");
-      const refreshToken = await createToken(user, "1h");
+      const accessToken = await createToken({ id, email, user_name }, "2h");
+      const refreshToken = await createToken({ id, email, user_name }, "2h");
       ctx.body = {
         code: 0,
         message: "登录成功",
         result: {
-          user: {
-            avatar,
-            nick_name,
-            is_admin,
-            ...user,
-          },
+          user: user,
           accessToken: accessToken,
           rfreshToken: refreshToken,
         },
@@ -66,28 +67,41 @@ class UseContrller {
 
   /**
    * 用户修改密码方法
-   * @returns {Promise<void>}
    */
   async changePassword(ctx) {
     try {
       //1.获取数据
       const { id } = ctx.state.user;
-      const user = ctx.request.body;
-      user["id"] = id;
-
+      const { old_password, new_password } = ctx.request.body;
+      const res = await getUserInfo({ id });
+      const match = await comparePassword(old_password, res.password);
       //2.更新到数据库
-      const res = await updateById(user);
-      //3.返回结果
-      if (res) {
-        ctx.body = {
-          code: 0,
-          message: "修改密码成功",
-          result: res,
-        };
+      if (match) {
+        // 验证成功后进行加密
+        const hash_password = await hashPassword(new_password);
+        if (!hash_password) {
+          return;
+        }
+        await updateById(id, { password: hash_password })
+          .then((res) => {
+            ctx.body = {
+              code: 0,
+              message: "修改密码成功",
+              result: res,
+            };
+          })
+          .catch((err) => {
+            ctx.body = {
+              code: "10007",
+              message: "修改密码失败",
+              result: "",
+            };
+            throw err;
+          });
       } else {
         ctx.body = {
-          code: "10007",
-          message: "修改密码失败",
+          code: "10008",
+          message: "原密码错误",
           result: "",
         };
       }

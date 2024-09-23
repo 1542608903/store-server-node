@@ -17,7 +17,7 @@ const {
   verifyUser,
   verifyEmail,
 } = require("../middleware/userMiddleware");
-const { verildatot } = require("../middleware/genericMiddleware");
+const { validateParams } = require("../middleware/genericMiddleware");
 const {
   auth,
   verifAdmin,
@@ -29,12 +29,11 @@ const { registerRules, loginRules } = require("../constant/rules");
 
 const router = new Router({ prefix: "/user" });
 
-
 // 注册接口
 // POST /user/register
 router.post(
   "/register",
-  verildatot(registerRules, userFormateError), //使用通用中间件验证请求体中的用户数据是否合法
+  validateParams(registerRules, userFormateError), //使用通用中间件验证请求体中的用户数据是否合法
   verifyUserExists, //检查用户名是否已经存在
   verifyEmail, //检查邮箱是否已经存在
   BcryptPassword, //对用户密码进行加密
@@ -45,7 +44,7 @@ router.post(
 // POST /user/login
 router.post(
   "/login",
-  verildatot(loginRules, userFormateError),
+  validateParams(loginRules, userFormateError),
   verifyUser,
   verifyPassword,
   verifLogin,
@@ -54,13 +53,13 @@ router.post(
 
 // 修改密码接口
 // PATCH /user
-router.patch("/:id", auth, BcryptPassword, changePassword);
+router.patch("/change-password", auth, changePassword);
 
 // 管理员登录接口
 // POST /user/admin
 router.post(
   "/admin",
-  verildatot(loginRules, userFormateError),
+  validateParams(loginRules, userFormateError),
   verifyUser,
   verifyPassword,
   verifLogin,

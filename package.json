@@ -18,6 +18,7 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
+    "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "koa": "^2.15.3",
     "koa-body": "^6.0.1",
@@ -28,8 +29,10 @@
     "koa2-swagger-ui": "^5.10.0",
     "minio": "^8.0.1",
     "mysql2": "^3.11.0",
+    "rate-limiter-flexible": "^5.0.3",
     "redis": "^4.7.0",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.7.5",
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {

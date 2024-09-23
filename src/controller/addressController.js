@@ -49,7 +49,7 @@ class AddressController {
         code: 0,
         messages: "查询所有地址成功",
         result: {
-          addressList: res,
+          address: res,
         },
       };
     } catch (err) {

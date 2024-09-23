@@ -19,7 +19,5 @@ const verifyOrderInGoods = async (ctx, next) => {
   }
 };
 
-const verifyStock = async (ctx,next)=>{
 
-}
-module.exports = { verifyOrderInGoods,verifyStock };
+module.exports = { verifyOrderInGoods };

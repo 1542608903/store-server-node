@@ -38,10 +38,10 @@ module.exports = {
     consignee: { type: "string" },
     phone: { type: "string", format: phoneRules },
     address: { type: "string" },
-    user_id: { type: "string",required: false},
+    user_id: { type: "string", required: false },
   },
   orderInfoRules: {
-    goods_info: {
+    data: {
       type: "array",
       itemType: "object",
       rule: {
@@ -51,12 +51,17 @@ module.exports = {
           required: true,
           pattern: /^\d+(\.\d{1,2})?$/,
         }, // 价格格式验证
-        quantity: { type: "integer", min: 1, required: true },
+        quantity: { type: "number", min: 1, required: true },
       },
       required: true,
     },
     id: {
-      id: { type: "string", required: false },
+      type: "integer",
+      required: true,
+    },
+    total: {
+      type: "number",
+      required: true,
     },
   },
 };

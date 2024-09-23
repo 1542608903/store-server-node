@@ -173,4 +173,18 @@ module.exports = {
     message: "修改订单失败",
     result: "",
   },
+  orderTotalPriceError: {
+    code: "10504",
+    message: "订单总价错误",
+  },
+  orderFormError: {
+    code: "10505",
+    message: "订单格式错误",
+  },
+  // 限流错误类型
+  limitError: {
+    code: "10601",
+    message: "由于您频繁访问,已被封禁300秒",
+    result: "",
+  },
 };

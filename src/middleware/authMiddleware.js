@@ -29,17 +29,17 @@ const auth = async (ctx, next) => {
 
     // 验证 token 的合法性
     const user = await verifyToken(token, JWT_SECRET);
+
     ctx.state.user = user;
     // 调用下一个中间件
     await next();
   } catch (err) {
+    console.log('auth',err);
     switch (err.name) {
       case "TokenExpiredError":
         return ctx.app.emit("error", TokenExpiredError, ctx);
       case "JsonWebTokenError":
         return ctx.app.emit("error", JsonWebTokenError, ctx);
-      default:
-        return ctx.app.emit("error", NullTokenError, ctx);
     }
   }
 };

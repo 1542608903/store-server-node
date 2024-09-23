@@ -17,10 +17,10 @@ const hashPassword = async (password, saltRounds = 10) => {
 };
 
 /**
- * 验证密码
+ * 验证哈希密码
  * @param {string} password - 明文密码
  * @param {string} hashedPassword - 哈希密码
- * @returns {Promise<boolean>} - 返回密码验证结果
+ * @returns {Promise<boolean>} 返回密码验证结果
  */
 const comparePassword = async (password, hashedPassword) => {
   try {

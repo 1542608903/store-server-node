@@ -1,8 +1,6 @@
 // 引入 Koa 路由
 const Router = require("koa-router");
 
-// 引入文件格式验证中间件
-const { fileValidator } = require("../middleware/uploadMiddleware");
 // 引入认证和权限中间件
 const { auth, verifAdmin } = require("../middleware/authMiddleware");
 // 引入商品验证中间件

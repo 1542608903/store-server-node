@@ -3,15 +3,16 @@ const {
   deleteOrderById,
   updateOrderStatus,
   orderSearch,
-  findAllOrderAddressByUserId,
   getUserOrdersWithProducts,
+  findOrderById,
 } = require("../service/orderService");
-const { getOrderNumber, mapItemsToOrderItems } = require("../utils");
+const { getOrderNumber } = require("../utils");
 const {
   creatOrderError,
   deleteOrderError,
   verifyOntOrder,
   updateOrderError,
+  orderTotalPriceError,
 } = require("../constant/errType");
 
 class OrderController {
@@ -27,38 +28,46 @@ class OrderController {
     // 计算总价
     let price = 0;
     data.forEach((item) => {
+      // price保留两位小数
       price += item.goods_price * item.quantity;
+      price = +price.toFixed(2);
     });
 
     if (price !== total) {
-      return ctx.app.emit("error", creatOrderError, ctx);
+      return ctx.app.emit("error", orderTotalPriceError, ctx);
     }
+
     // 生成订单号
     const order_number = "DMB" + getOrderNumber(13);
+
+    // 创建订单data
     const order = {
       user_id,
       address_id: id,
-      total_price: price,
+      total_price: +price,
       state: 1,
       order_number,
     };
 
+    // 创建订单
     await createOrder(order, data)
       .then((res) => {
         ctx.body = {
           code: 0,
           message: "订单创建成功",
-          result: res, // 返回创建的订单详细信息
+          result: { order: res }, // 返回创建的订单详细信息
         };
       })
       .catch((err) => {
+        console.log(err);
         ctx.app.emit("error", creatOrderError, ctx);
       });
+
     await getUserOrdersWithProducts(user_id).then((res) => {
       ctx.body = {
         code: 0,
         message: "订单列表",
-        result: res, // 返回创建的订单详细信息
+        result: { order: res }, // 返回创建的订单详细信息
       };
     });
   }
@@ -69,8 +78,8 @@ class OrderController {
       await getUserOrdersWithProducts(user_id).then((res) => {
         ctx.body = {
           code: 0,
-          message: "获取订单成功",
-          result: res, // 返回订单列表
+          message: "订单列表",
+          result: { order: res }, // 返回订单列表
         };
       });
     } catch (err) {
@@ -105,6 +114,7 @@ class OrderController {
       result: "",
     };
   }
+
   async search(ctx) {
     const user_id = ctx.state.user.id;
     const { goods_name } = ctx.request.body;
@@ -120,14 +130,22 @@ class OrderController {
       result: res,
     };
   }
-  async findAllOrderAddress(ctx) {
-    const res = await findAllOrderAddressByUserId();
-    console.log(res);
-    ctx.body = {
-      code: 0,
-      message: "获取地址成功",
-      result: res,
-    };
+
+  async getOneOrder(ctx) {
+    const user_id = ctx.state.user.id;
+    const { id } = ctx.params;
+    await findOrderById(user_id, id)
+      .then((res) => {
+        ctx.body = {
+          code: 0,
+          message: "获取订单成功",
+          result: { order: res },
+        };
+      })
+      .catch((err) => {
+        console.log(err);
+        ctx.app.emit("error", verifyOntOrder, ctx);
+      });
   }
 }
 

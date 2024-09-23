@@ -4,8 +4,38 @@ const Goods = require("../model/product/goods");
 const Address = require("../model/address/address");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
+const redis = require("../db/redis");
 
 class OrderService {
+  async createRedisOrder(order, orderItems) {
+    const key = `order_${order.user_id}`;
+    try {
+      // 将订单和订单项保存到redis中
+      await redis.set(key, JSON.stringify(order));
+      await redis.set(`orderItems_${order.id}`, JSON.stringify(orderItems));
+      return order;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRedisOrder(user_id) {
+    const key = `order_${user_id}`;
+    try {
+      // 从redis中获取订单和订单项
+      const order = JSON.parse(await redis.get(key));
+      const orderItems = JSON.parse(await redis.get(`orderItems_${order.id}`));
+
+      if (order && orderItems) {
+        return { order, orderItems };
+      } else {
+        this.getUserOrdersWithProducts(user_id);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createOrder(order, orderItems) {
     const transaction = await seq.transaction(); // 开始事务
     try {
@@ -25,21 +55,19 @@ class OrderService {
 
       // 提交事务
       await transaction.commit();
-
-      return res.dataValues; // 返回订单详细信息
+      // 返回订单详细信息
+      return res.dataValues;
     } catch (err) {
       // 确保回滚事务
-      console.log(err);
-
       if (transaction) await transaction.rollback();
       throw err; // 抛出错误
     }
   }
 
   // 查询某个用户下单的商品信息
-
   async getUserOrdersWithProducts(user_id) {
     try {
+      // 查询数据库
       const orders = await Order.findAll({
         where: { user_id }, // 查询指定的订单
         include: [
@@ -48,6 +76,7 @@ class OrderService {
             include: [
               {
                 model: Goods, // 包含商品信息
+                as: "product",
               },
             ],
           },
@@ -177,6 +206,36 @@ class OrderService {
     } catch (error) {
       console.error("查找订单时出错:", error);
       throw error; // 抛出错误
+    }
+  }
+
+  // 查询某个用户下的某个订单
+  async findOrderById(user_id, id) {
+    try {
+      const res = await Order.findOne({
+        where: {
+          id: +id, // 转换为数字，确保 id 是正确的类型
+          user_id: user_id,
+        },
+        include: [
+          {
+            model: OrderItem, // 包含订单项
+            include: [
+              {
+                model: Goods, // 包含商品信息
+                as: "product", // 确保别名与模型定义中一致
+              },
+            ],
+          },
+          {
+            model: Address,
+          },
+        ],
+      });
+      return res;
+    } catch (error) {
+      console.error("Error finding order by ID:", error);
+      throw error;
     }
   }
 }
