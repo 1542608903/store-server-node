@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const seq = require("../../db/seq"); // 假设你有一个 sequelize 实例文件
+const seq = require("../../db/seq");
 const User = require("../user/user");
 const Address = seq.define(
   "address",
@@ -46,5 +46,5 @@ const Address = seq.define(
     tableName: "addresses",
   }
 );
-// Address.sync({ force: true });
+
 module.exports = Address;

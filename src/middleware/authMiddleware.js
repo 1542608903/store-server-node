@@ -34,7 +34,6 @@ const auth = async (ctx, next) => {
     // 调用下一个中间件
     await next();
   } catch (err) {
-    console.log('auth',err);
     switch (err.name) {
       case "TokenExpiredError":
         return ctx.app.emit("error", TokenExpiredError, ctx);
@@ -59,7 +58,6 @@ const verifAdmin = async (ctx, next) => {
     }
     await next();
   } catch (err) {
-    console.error("错误", err);
     return ctx.app.emit("error", serverError, ctx);
   }
 };
@@ -85,7 +83,7 @@ const refreshToken = async (ctx, next) => {
       message: "刷新成功",
       result: {
         accessToken: accessToken,
-        rfreshToken: refreshToken,
+        refreshToken: refreshToken,
       },
     };
     await next();
@@ -98,6 +96,7 @@ const refreshToken = async (ctx, next) => {
     }
   }
 };
+
 // 检测token是否过期
 const verifyTokenExpired = async (ctx, next) => {
   try {
@@ -118,6 +117,7 @@ const verifyTokenExpired = async (ctx, next) => {
     }
   }
 };
+
 module.exports = {
   auth,
   verifAdmin,

@@ -4,38 +4,8 @@ const Goods = require("../model/product/goods");
 const Address = require("../model/address/address");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
-const redis = require("../db/redis");
 
 class OrderService {
-  async createRedisOrder(order, orderItems) {
-    const key = `order_${order.user_id}`;
-    try {
-      // 将订单和订单项保存到redis中
-      await redis.set(key, JSON.stringify(order));
-      await redis.set(`orderItems_${order.id}`, JSON.stringify(orderItems));
-      return order;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getRedisOrder(user_id) {
-    const key = `order_${user_id}`;
-    try {
-      // 从redis中获取订单和订单项
-      const order = JSON.parse(await redis.get(key));
-      const orderItems = JSON.parse(await redis.get(`orderItems_${order.id}`));
-
-      if (order && orderItems) {
-        return { order, orderItems };
-      } else {
-        this.getUserOrdersWithProducts(user_id);
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async createOrder(order, orderItems) {
     const transaction = await seq.transaction(); // 开始事务
     try {
@@ -108,44 +78,18 @@ class OrderService {
       throw err; // 抛出错误
     }
   }
-  /**
-   *
-   * @param {string} user_id
-   * @returns
-   */
-  async findAllOrderByUserId(user_id) {
-    try {
-      const orders = await Order.findAll({
-        where: { user_id },
-        include: {
-          model: OrderItem,
-          include: {
-            model: Goods,
-            attributes: ["id", "goods_name", "goods_img", "goods_price"],
-          },
-        },
-      });
 
-      const orderData = orders.map((order) => order.dataValues);
-      return orderData; // 返回订单数据
-    } catch (error) {
-      console.error("根据用户ID查找订单时出错:", error);
-      throw error; // 抛出错误
-    }
-  }
-
-  async updateOrderStatus(id, state) {
+  async updateOrderStatus(id) {
     try {
       const res = await Order.findByPk(id);
       if (res) {
-        res.state = state; // 假设状态字段是 status，并设置为1表示已处理
+        res.state = 1; // 假设状态字段是 status，并设置为1表示已处理
 
         await res.save();
         return res;
       }
-      return null; // 如果订单未找到，返回 null
+      return res;
     } catch (error) {
-      console.error("更新订单状态时出错:", error);
       throw error; // 抛出错误
     }
   }
@@ -181,34 +125,6 @@ class OrderService {
       throw error; // 抛出错误
     }
   }
-  async findAllOrderAddressByUserId() {
-    try {
-      // 获取所有用户下单的订单地址以及订单物品信息
-      const orders = await Order.findAll({
-        include: [
-          {
-            model: Address,
-            include: [
-              {
-                model: OrderItem,
-                include: [
-                  {
-                    model: Goods,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      });
-      const orderData = orders.map((order) => order.dataValues);
-      return orderData; // 返回订单数据
-    } catch (error) {
-      console.error("查找订单时出错:", error);
-      throw error; // 抛出错误
-    }
-  }
-
   // 查询某个用户下的某个订单
   async findOrderById(user_id, id) {
     try {
@@ -234,7 +150,6 @@ class OrderService {
       });
       return res;
     } catch (error) {
-      console.error("Error finding order by ID:", error);
       throw error;
     }
   }

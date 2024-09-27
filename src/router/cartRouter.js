@@ -9,7 +9,6 @@ const {
   update,
   remove,
   selectALll,
-  unSelectAll,
 } = require("../controller/cartController");
 
 const { cartFormatError } = require("../constant/errType");
@@ -42,9 +41,6 @@ router.post("/remove", auth, remove);
 
 // 路由：购物车全选
 router.post("/selectAll", auth, selectALll);
-
-// 路由：取消全选购物车中的商品
-router.post("/unSelectAll", auth, unSelectAll);
 
 // 导出路由模块
 module.exports = router;

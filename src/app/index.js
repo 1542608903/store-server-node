@@ -1,12 +1,11 @@
 const path = require("path");
 const Koa = require("koa");
-const parameter = require('koa-parameter');
+const parameter = require("koa-parameter");
 const { koaBody } = require("koa-body");
 const KoaStatic = require("koa-static");
 const errHandler = require("./errHandler");
 const router = require("../router");
 const { UPLOAD_TYPE } = require("../config/config.default");
-const {dropModels,syncModels} = require('../model/syncModels')
 
 const app = new Koa();
 // 类型校验工具

@@ -1,6 +1,6 @@
+const Address = require("../model/address/address");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
-const Address = require("../model/address/address");
 class AddressService {
   /**
    *添加地址服务
@@ -44,17 +44,15 @@ class AddressService {
     return res[0] > 0 ? true : false;
   }
 
-  async setDefaultAddress(id, user_id, is_default) {
+  async setDefaultAddress(id, user_id) {
     try {
+      const is_default = true;
       const transaction = await seq.transaction(); // 开始事务
       // 如果要设置为默认地址，先将该用户的所有地址的 is_default 设置为 false
-      if (is_default) {
-        await Address.update(
-          { is_default: false },
-          { where: { user_id }, transaction }
-        );
-      }
-
+      await Address.update(
+        { is_default: false },
+        { where: { user_id }, transaction }
+      );
       // 更新指定地址的 is_default 状态
       const [numberOfAffectedRows] = await Address.update(
         { is_default },
@@ -80,7 +78,17 @@ class AddressService {
     });
     return res ? res : null;
   }
+
   async deleteAddressById(user_id, id) {
+    // 查找地址是否是默认地址
+    const isDefault = await Address.findOne({
+      where: { id, user_id, is_default: true },
+    });
+    console.log(isDefault);
+
+    if (isDefault) {
+      return 0;
+    }
     const res = await Address.destroy({ where: { user_id, id } });
     return res;
   }

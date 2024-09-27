@@ -38,7 +38,7 @@ module.exports = {
     consignee: { type: "string" },
     phone: { type: "string", format: phoneRules },
     address: { type: "string" },
-    user_id: { type: "string", required: false },
+    user_id: { type: "number", required: false },
   },
   orderInfoRules: {
     data: {

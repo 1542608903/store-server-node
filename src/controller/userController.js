@@ -19,12 +19,12 @@ class UseContrller {
       //1.获取数据
       const user = ctx.request.body;
       user.avatar =
-        "http://127.0.0.1:8888/online/e88786a0140ef17cf93350e00.png";
+        "http://47.119.172.215:9988/online/0008cbace240eee93a3327500.jpg";
       //2.操作数据库
       const { password, ...res } = await createUser(user);
 
       ctx.body = {
-        code: "0",
+        code: 0,
         message: "用户注册成功",
         result: {
           user: res,
@@ -47,15 +47,15 @@ class UseContrller {
       const { password, ...user } = await getUserInfo(userInfo);
       const { id, email, user_name } = user;
       // 刷新token
-      const accessToken = await createToken({ id, email, user_name }, "2h");
-      const refreshToken = await createToken({ id, email, user_name }, "2h");
+      const accessToken = await createToken({ id, email, user_name }, "3h");
+      const refreshToken = await createToken({ id, email, user_name }, "3h");
       ctx.body = {
         code: 0,
         message: "登录成功",
         result: {
           user: user,
           accessToken: accessToken,
-          rfreshToken: refreshToken,
+          refreshToken: refreshToken,
         },
       };
     } catch (err) {

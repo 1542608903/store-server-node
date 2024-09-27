@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const seq = require("../../db/seq");
-
 //创建模型
 const User = seq.define(
   "User",
@@ -53,4 +52,5 @@ const User = seq.define(
     tableName: "users",
   }
 );
+
 module.exports = User;

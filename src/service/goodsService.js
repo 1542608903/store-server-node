@@ -1,7 +1,5 @@
-const { Op, where } = require("sequelize");
-const { findAll } = require("../controller/addressController");
+const { Op } = require("sequelize");
 const Goods = require("../model/product/goods");
-const { id } = require("date-fns/locale");
 
 class GoodsService {
   /**

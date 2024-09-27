@@ -6,11 +6,13 @@ const {
   defaultAddress,
   deleteAddressById,
 } = require("../service/addressService");
-const { addressUpdateError, addressNotExited } = require("../constant/errType");
+const {
+  addressUpdateError,
+  addressNotExited,
+  defaultAddressNotDel,
+} = require("../constant/errType");
 class AddressController {
   /**
-   *
-   *
    * @author DMB
    * @date 2024-08-01 19:08:02
    * @param {*} ctx
@@ -23,14 +25,12 @@ class AddressController {
     const { updatedAt, createdAt, ...res } = await addressCreate(data);
     ctx.body = {
       code: 0,
-      messages: "添加地址成功",
+      message: "添加地址成功",
       result: { address: res },
     };
   }
 
   /**
-   *
-   *
    * @author DMB
    * @date 2024-08-01 19:08:55
    * @param {*} ctx
@@ -44,22 +44,19 @@ class AddressController {
       if (!res) {
         return ctx.app.emit("error", addressNotExited, ctx);
       }
-
       ctx.body = {
         code: 0,
-        messages: "查询所有地址成功",
+        message: "查询所有地址成功",
         result: {
           address: res,
         },
       };
     } catch (err) {
-      console.error("error", err);
+      throw err;
     }
   }
 
   /**
-   *
-   *
    * @author DMB
    * @date 2024-08-01 19:08:49
    * @param {*} ctx
@@ -73,7 +70,7 @@ class AddressController {
       if (res) {
         return (ctx.body = {
           code: 0,
-          messages: "更新成功",
+          message: "更新成功",
           result: "",
         });
       }
@@ -84,20 +81,20 @@ class AddressController {
   }
   async isOnDefault(ctx) {
     const user_id = ctx.state.user.id;
-    const { id, is_default } = ctx.request.body;
-    const res = await setDefaultAddress(id, user_id, is_default);
+    const { id } = ctx.request.body;
+    const res = await setDefaultAddress(id, user_id);
     if (res) {
       ctx.body = {
         code: 0,
-        messages: "设为默认地址",
+        message: "设为默认地址",
         result: "",
       };
+    } else {
+      ctx.app.emit("error", addressNotExited, ctx);
     }
   }
 
   /**
-   *
-   *
    * @author DMB
    * @date 2024-08-01 19:08:37
    * @memberof AddressController
@@ -107,28 +104,29 @@ class AddressController {
     const res = await defaultAddress(user_id);
     ctx.body = {
       code: 0,
-      messages: "获取默认地址",
+      message: "获取默认地址",
       result: res,
     };
   }
 
   /**
-   *
-   *
    * @author DMB
    * @date 2024-08-01 19:08:41
-   * @param {*} ctx
    * @memberof AddressController
    */
   async deleteAddress(ctx) {
     const user_id = ctx.state.user.id;
     const { id } = ctx.params;
     const res = await deleteAddressById(user_id, id);
-    ctx.body = {
-      code: 0,
-      messages: "删除成功",
-      result: "",
-    };
+    if (res === 0) {
+      ctx.app.emit("error", defaultAddressNotDel, ctx);
+    } else {
+      ctx.body = {
+        code: 0,
+        message: "删除成功",
+        result: "",
+      };
+    }
   }
 }
 

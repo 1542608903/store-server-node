@@ -23,7 +23,7 @@ router.post(
 
 router.post("/", auth, findAllOrder);
 router.delete("/:id", auth, deleteOrder);
-router.patch("/:id", auth, updateStatus);
 router.post("/search", auth, search);
 router.get("/:id", auth, getOneOrder);
+router.patch("/:id", auth, updateStatus);
 module.exports = router;

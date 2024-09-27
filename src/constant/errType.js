@@ -130,7 +130,7 @@ module.exports = {
   },
   getCartError: {
     code: "10303",
-    message: "获取购物车失败",
+    message: "获取购物车错误",
     result: "",
   },
   cartFormatError: {
@@ -151,6 +151,11 @@ module.exports = {
   addressNotExited: {
     code: "10403",
     message: "地址不存在",
+    result: "",
+  },
+  defaultAddressNotDel: {
+    code: "10404",
+    message: "默认地址不能删除",
     result: "",
   },
   creatOrderError: {

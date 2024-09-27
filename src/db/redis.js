@@ -20,18 +20,6 @@ redis
   })
   .on("error", (err) => {
     console.log("Redis 连接失败", err);
-  })
-  .on("reconnecting", () => {
-    console.log("Redis 重新连接中...");
-  })
-  .on("end", () => {
-    console.log("Redis 连接已关闭");
-  })
-  .on("ready", () => {
-    console.log("Redis 准备就绪");
-  })
-  .on("close", () => {
-    console.log("Redis 连接关闭");
   });
 
 module.exports = redis;

@@ -48,4 +48,8 @@ const OrderItem = seq.define(
   }
 );
 
+// 订单项和商品关联关系
+Goods.hasMany(OrderItem, { foreignKey: "goods_id" });
+OrderItem.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
+
 module.exports = OrderItem;

@@ -1,6 +1,8 @@
 const { DataTypes } = require("sequelize");
 const seq = require("../../db/seq");
 const User = require("../user/user");
+const OrderItem = require("./orderItem");
+const Address = require("../address/address");
 
 const Order = seq.define(
   "order",
@@ -46,5 +48,17 @@ const Order = seq.define(
     tableName: "orders",
   }
 );
+
+// 地址和订单关系
+Address.hasMany(Order, { foreignKey: "address_id" });
+Order.belongsTo(Address, { foreignKey: "address_id" });
+
+// 用户和订单关联关系
+User.hasMany(Order, { foreignKey: "user_id" });
+Order.belongsTo(User, { foreignKey: "user_id" });
+
+// 订单与订单项关联关系
+Order.hasMany(OrderItem, { foreignKey: "order_id" });
+OrderItem.belongsTo(Order, { foreignKey: "order_id" });
 
 module.exports = Order;

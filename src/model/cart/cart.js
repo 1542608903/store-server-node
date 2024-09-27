@@ -37,9 +37,14 @@ const Cart = seq.define(
     },
   },
   {
-    timestamps: true, // 如果你希望 Sequelize 自动添加 createdAt 和 updatedAt 字段
+    timestamps: true,
     comment: "用户购物车表", // 表的注释
     tableName: "carts",
   }
 );
+
+// 购物车和商品关联关系
+Goods.hasMany(Cart, { foreignKey: "goods_id" });
+Cart.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
+
 module.exports = Cart;

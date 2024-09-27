@@ -6,6 +6,7 @@ const {
   UPLOAD_TYPE,
   BASEURL,
   STORAGE_HOST,
+  HTTP,
 } = require("../config/config.default");
 class uploadController {
   /**
@@ -13,16 +14,26 @@ class uploadController {
    * @returns {Promise<void>}
    */
   async upload(ctx) {
-    const { file } = ctx.request.files;
-    if (!file) return;
     try {
+      const { file } = ctx.request.files;
+      let URL_BASEURL = "";
+      let STORAGE_HOST_URL = "";
+
+      //判断URL地址是否/结束
+      if (!BASEURL.endsWith("/")) {
+        URL_BASEURL = BASEURL + "/";
+      }
+      if (!STORAGE_HOST.endsWith("/")) {
+        STORAGE_HOST_URL = STORAGE_HOST + "/";
+      }
+
       switch (UPLOAD_TYPE) {
         case "local":
           ctx.body = {
             code: 0,
             message: "上传成功",
             result: {
-              url: `${BASEURL}local/${path.basename(file.filepath)}`,
+              url: `${URL_BASEURL}local/${path.basename(file.filepath)}`,
             },
           };
           break;
@@ -31,7 +42,7 @@ class uploadController {
             code: 0,
             message: "上传成功",
             result: {
-              url: `${BASEURL}online/${path.basename(file.filepath)}`,
+              url: `${URL_BASEURL}online/${path.basename(file.filepath)}`,
             },
           };
           break;
@@ -44,31 +55,35 @@ class uploadController {
             code: 0,
             message: "上传成功",
             result: {
-              url: `http://${STORAGE_HOST}${res}`,
+              url: `${HTTP}://${STORAGE_HOST_URL}${res}`,
             },
           };
           break;
       }
       // 删除配置
     } catch (err) {
+      console.log(err);
+
       return ctx.app.emit("error", fileUploadError, ctx);
     }
   }
 
   // 删除服务器下的照片
   async deleteOnlineImgs(imgList) {
-    Array.isArray(imgList) &&
-      imgList.length &&
+    if (Array.isArray(imgList) && imgList.length) {
       imgList.forEach((v) => {
         if (v) {
-          let filePath = path
-            .join(__dirname, "./upload/online/" + v)
-            .replace("/controller/utils", "");
+          // 假设文件存在 ./upload/online/ 目录下
+          const filePath = path.resolve(__dirname, `../upload/online/${v}`);
+
+          // 检查文件是否存在
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
           }
         }
       });
+    }
   }
 }
+
 module.exports = new uploadController();

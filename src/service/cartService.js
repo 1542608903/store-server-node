@@ -1,6 +1,6 @@
 const Cart = require("../model/cart/cart");
-const { Op } = require("sequelize");
 const Goods = require("../model/product/goods");
+const { Op } = require("sequelize");
 
 class CartService {
   /**
@@ -10,26 +10,43 @@ class CartService {
    * @param {number} number - 购买数量
    * @returns {Promise<Object>} - 返回创建或更新的购物车条目
    */
-  async createOrUpdate(user_id, goods_id, number) {
-    const res = await Cart.findOne({
-      where: {
-        [Op.and]: {
-          user_id,
-          goods_id,
+  async createOrUpdate(user_id, goods_id) {
+    try {
+      const res = await Cart.findOne({
+        where: {
+          [Op.and]: {
+            user_id,
+            goods_id,
+          },
         },
-      },
-    });
-
-    if (res) {
-      // 已经存在一条记录，增加数量
-      await res.increment("number");
-      return await res.reload(); // 返回更新后的记录
-    } else {
-      // 创建新的购物车条目
-      return await Cart.create({
-        user_id,
-        goods_id,
       });
+      if (res) {
+        // 已经存在一条记录，增加数量
+        await res.increment("number");
+        return await res.reload(); // 返回更新后的记录
+      } else {
+        return await Cart.create({ user_id, goods_id });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  /**
+   *
+   * @param {number} id 购物车id
+   * @returns {Promise<Object>} - 返回一条购物车
+   */
+  async oneUserCart(id, user_id) {
+    try {
+      const res = await Cart.findOne({
+        where: { id, user_id },
+        include: { model: Goods, as: "product" },
+      });
+
+      return res;
+    } catch (error) {
+      console.log("123123", error);
+      throw error;
     }
   }
   async oneUserCarts(user_id, pageNum, pageSize) {
@@ -51,7 +68,7 @@ class CartService {
         list: rows,
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -73,7 +90,7 @@ class CartService {
   }
 
   async updateCarts(id, data) {
-    const { goods_num: number, selected } = data;
+    const { number, selected } = data;
     const res = await Cart.update(
       { selected, number },
       {
@@ -96,19 +113,9 @@ class CartService {
     return res;
   }
 
-  async selectALllCarts(user_id) {
+  async selectALllCarts(user_id, isSelect) {
     return await Cart.update(
-      { selected: true },
-      {
-        where: {
-          user_id,
-        },
-      }
-    );
-  }
-  async unSelectAllCarts(user_id) {
-    return await Cart.update(
-      { selected: false },
+      { selected: isSelect },
       {
         where: {
           user_id,
