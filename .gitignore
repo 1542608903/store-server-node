@@ -1,6 +1,5 @@
 node_modules
 
-
-src\public\online
-src\public\local
-src\public\minio
+src/public/online/
+src/public/local/
+src/public/minio/
