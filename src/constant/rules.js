@@ -40,18 +40,26 @@ module.exports = {
     address: { type: "string" },
     user_id: { type: "number", required: false },
   },
+  // 订单
   orderInfoRules: {
     data: {
       type: "array",
       itemType: "object",
       rule: {
-        id: { type: "integer", required: true },
+        id: {
+          type: "integer",
+          required: true,
+        },
         goods_price: {
           type: "string",
           required: true,
-          pattern: /^\d+(\.\d{1,2})?$/,
-        }, // 价格格式验证
-        quantity: { type: "number", min: 1, required: true },
+          pattern: /^\d+(\.\d{1,2})?$/, // 价格格式验证：数字，最多两位小数
+        },
+        quantity: {
+          type: "number",
+          min: 1, // 数量必须大于等于1
+          required: true,
+        },
       },
       required: true,
     },
@@ -62,6 +70,7 @@ module.exports = {
     total: {
       type: "number",
       required: true,
+      min: 0, // 确保总金额为非负数
     },
   },
 };

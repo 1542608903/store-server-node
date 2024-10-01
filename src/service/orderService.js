@@ -35,11 +35,14 @@ class OrderService {
   }
 
   // 查询某个用户下单的商品信息
-  async getUserOrdersWithProducts(user_id) {
+  async getUserOrdersWithProducts(user_id, pageNum = 1, pageSize = 10) {
     try {
       // 查询数据库
-      const orders = await Order.findAll({
+      const offset = (pageNum - 1) * pageSize;
+      const { rows, count } = await Order.findAndCountAll({
         where: { user_id }, // 查询指定的订单
+        offset: offset,
+        limit: pageSize,
         include: [
           {
             model: OrderItem, // 包含订单项
@@ -55,7 +58,16 @@ class OrderService {
           },
         ],
       });
-      return orders;
+
+      // 确保返回的页码和总页数正确
+      const totalPages = Math.ceil(count / pageSize);
+      pageNum = Math.min(pageNum, totalPages);
+      return {
+        pageNum,
+        pageSize,
+        total: totalPages,
+        list: rows,
+      };
     } catch (error) {
       throw error;
     }
@@ -102,26 +114,27 @@ class OrderService {
   async orderSearch(user_id, goods_name) {
     try {
       const orders = await Order.findAll({
-        where: {
-          ...(user_id && { user_id: user_id }),
-        },
+        where: { user_id },
         include: [
           {
             model: OrderItem,
             include: [
               {
                 model: Goods,
+                as: "product",
                 where: {
-                  ...{ goods_name: { [Op.like]: `%${goods_name}%` } },
+                  goods_name: {
+                    [Op.like]: `%${goods_name}%`,
+                  },
+                  deletedAt: null,
                 },
               },
             ],
           },
         ],
       });
-      return orders ? orders.dataValues : null;
+      return orders ? orders : null;
     } catch (error) {
-      console.error("根据用户ID查找订单时出错:", error);
       throw error; // 抛出错误
     }
   }
@@ -130,16 +143,16 @@ class OrderService {
     try {
       const res = await Order.findOne({
         where: {
-          id: +id, // 转换为数字，确保 id 是正确的类型
+          id: id,
           user_id: user_id,
         },
         include: [
           {
-            model: OrderItem, // 包含订单项
+            model: OrderItem,
             include: [
               {
-                model: Goods, // 包含商品信息
-                as: "product", // 确保别名与模型定义中一致
+                model: Goods,
+                as: "product",
               },
             ],
           },

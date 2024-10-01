@@ -119,7 +119,7 @@ class GoodsService {
    * @property {number} total - 商品总数
    * @property {Array<Goods>} list - 商品列表
    */
-  async findGoods(pageNum = 1, pageSize = 8) {
+  async findGoods(pageNum = 1, pageSize = 10) {
     try {
       // 计算分页的偏移量
       const offset = (pageNum - 1) * pageSize;

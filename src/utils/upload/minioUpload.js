@@ -123,7 +123,7 @@ const minioUpload = async (filePath) => {
       return false;
     }
   } catch (err) {
-    console.log(err);
+    throw err
   }
 };
 

@@ -44,7 +44,7 @@ const Cart = seq.define(
 );
 
 // 购物车和商品关联关系
-Goods.hasMany(Cart, { foreignKey: "goods_id" });
-Cart.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
+// Goods.hasMany(Cart, { foreignKey: "goods_id" });
+// Cart.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
 
 module.exports = Cart;

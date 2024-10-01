@@ -40,13 +40,4 @@ const dropModels = async () => {
   }
 };
 
-module.exports = {
-  syncModels,
-  dropModels,
-  User,
-  Goods,
-  Address,
-  Cart,
-  Order,
-  OrderItem,
-};
+module.exports = { syncModels, dropModels };

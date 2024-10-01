@@ -6,7 +6,7 @@ const KoaStatic = require("koa-static");
 const errHandler = require("./errHandler");
 const router = require("../router");
 const { UPLOAD_TYPE } = require("../config/config.default");
-
+const Model = require("../model/index");
 const app = new Koa();
 // 类型校验工具
 app.use(parameter(app));
@@ -37,11 +37,12 @@ switch (UPLOAD_TYPE) {
       })
     );
     break;
-  case "minio":
+  default:
     app.use(
       koaBody({
         multipart: true,
         formidable: {
+          uploadDir: path.join(__dirname, "../public/minio"),
           keepExtensions: true,
           maxFieldsSize: 2 * 1024 * 1024,
         },

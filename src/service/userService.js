@@ -16,8 +16,8 @@ class UserService {
 
   /**
    * 获取用户信息
-   * @param {object} [user] - 用户
-   * @returns {Promise<Object|null>} - 返回用户数据或 null
+   * @param {Object} user 用户
+   * @returns {Promise<Object|null>} 返回用户数据或 null
    */
   async getUserInfo(user) {
     // 解构出信息，避免传入 undefined 时出错
@@ -53,6 +53,7 @@ class UserService {
     // 判断更新是否成功
     return res[0] > 0;
   }
+
   async isAdmin(user_name) {
     const is_admin = true;
     const res = await User.findOne({

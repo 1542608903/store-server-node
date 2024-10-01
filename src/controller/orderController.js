@@ -61,14 +61,22 @@ class OrderController {
 
   async findAllOrder(ctx) {
     try {
-      const user_id = ctx.state.user.id; // 获取用户 ID
-      await getUserOrdersWithProducts(user_id).then((res) => {
-        ctx.body = {
-          code: 0,
-          message: "订单列表",
-          result: { order: res }, // 返回订单列表
-        };
-      });
+      const user_id = ctx.state.user.id;
+      const { pageNum, pageSize } = ctx.request.body;
+      await getUserOrdersWithProducts(user_id, pageNum, pageSize).then(
+        (res) => {
+          ctx.body = {
+            code: 0,
+            message: "订单列表",
+            result: {
+              pageNum: res.pageNum,
+              pageSize: res.pageSize,
+              total: res.total,
+              order: res.list,
+            },
+          };
+        }
+      );
     } catch (error) {
       ctx.app.emit("error", verifyOntOrder, ctx);
       throw error;
@@ -92,12 +100,15 @@ class OrderController {
 
   async updateStatus(ctx) {
     try {
+      const user_id = ctx.state.user.id;
       const { id } = ctx.request.params;
       const res = await updateOrderStatus(id);
+      // const order = await findOrderById(user_id, id);
+
       ctx.body = {
         code: 0,
         message: "状态更新成功",
-        result: res,
+        result: { order: res },
       };
     } catch (error) {
       ctx.app.emit("error", updateOrderError, ctx);

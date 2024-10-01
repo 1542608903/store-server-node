@@ -7,12 +7,12 @@ const {
   changePassword,
   queryUserInfo,
   getAllUser,
+  changeUser
 } = require("../controller/userController");
 // 导入中间件
 const {
-  verifyUserExists, // 用于检查用户名是否已存在的中间件
-  BcryptPassword, // 用于对用户密码进行加密的中间件
-  verifLogin, // 用于验证用户登录数据的中间件
+  verifyUserExists,
+  BcryptPassword,
   verifyPassword,
   verifyUser,
   verifyEmail,
@@ -22,10 +22,10 @@ const {
   auth,
   verifAdmin,
   refreshToken,
-} = require("../middleware/authMiddleware"); // 用于用户认证的中间件
+} = require("../middleware/authMiddleware");
 const { userFormateError } = require("../constant/errType");
 const { registerRules, loginRules } = require("../constant/rules");
-// 实例化路由，并设置前缀为 '/user'
+
 
 const router = new Router({ prefix: "/user" });
 
@@ -33,43 +33,46 @@ const router = new Router({ prefix: "/user" });
 // POST /user/register
 router.post(
   "/register",
-  validateParams(registerRules, userFormateError), //使用通用中间件验证请求体中的用户数据是否合法
-  verifyUserExists, //检查用户名是否已经存在
-  verifyEmail, //检查邮箱是否已经存在
-  BcryptPassword, //对用户密码进行加密
-  register //调用控制器方法完成用户注册
+  validateParams(registerRules, userFormateError),
+  verifyUserExists,
+  verifyEmail,
+  BcryptPassword,
+  register
 );
 
 // 登录接口
-// POST /user/login
 router.post(
   "/login",
   validateParams(loginRules, userFormateError),
   verifyUser,
   verifyPassword,
-  verifLogin,
   login
 );
 
-// 修改密码接口
-// PATCH /user
-router.patch("/change-password", auth, changePassword);
 
 // 管理员登录接口
-// POST /user/admin
 router.post(
   "/admin",
   validateParams(loginRules, userFormateError),
   verifyUser,
   verifyPassword,
-  verifLogin,
   login
 );
 
+// 修改密码接口
+router.patch("/change-password", auth, changePassword);
+
+// 修改用户信息接口
+router.patch("/change-user", auth, changeUser);
+
+// 查询用户信息
 router.post("/", auth, verifAdmin, queryUserInfo);
 
+// 查询所有用户
 router.post("/all", auth, verifAdmin, getAllUser);
 
+// 刷新token接口
 router.post("/refresh_token", refreshToken);
+
 // 导出路由模块
 module.exports = router;

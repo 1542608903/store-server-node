@@ -45,50 +45,35 @@ class CartService {
 
       return res;
     } catch (error) {
-      console.log("123123", error);
       throw error;
     }
   }
-  async oneUserCarts(user_id, pageNum, pageSize) {
+  async oneUserCarts(user_id, pageNum = 1, pageSize = 5) {
     try {
       const offset = (pageNum - 1) * pageSize;
       const { count, rows } = await Cart.findAndCountAll({
         where: { user_id },
-        offset: offset,
+        offset: +offset,
         limit: +pageSize,
         include: {
           model: Goods,
           as: "product",
         },
       });
+      // 确保返回的页码和总页数正确
+      const totalPages = Math.ceil(count / pageSize);
+      pageNum = Math.min(pageNum, totalPages);
+
       return {
         pageNum,
-        pageSize,
-        total: count,
+        pageSize: +pageSize,
+        total: totalPages,
         list: rows,
       };
     } catch (error) {
       throw error;
     }
   }
-
-  async findCarts(pageNum, pageSize) {
-    const offset = (pageNum - 1) * pageSize;
-    const { count, rows } = await Cart.findAndCountAll({
-      offset: offset,
-      limit: +pageSize,
-      include: {
-        model: Goods,
-      },
-    });
-    return {
-      pageNum,
-      pageSize,
-      total: count,
-      list: rows,
-    };
-  }
-
   async updateCarts(id, data) {
     const { number, selected } = data;
     const res = await Cart.update(

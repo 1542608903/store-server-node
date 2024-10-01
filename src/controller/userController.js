@@ -9,6 +9,13 @@ const {
   comparePassword,
   hashPassword,
 } = require("../utils/passwordUtils/bcrypt");
+
+const {
+  updateUserError,
+  updatePasswordError,
+  oldPasswordError,
+  notUserExited,
+} = require("../constant/errType");
 class UseContrller {
   /**
    * 用户注册方法
@@ -32,7 +39,6 @@ class UseContrller {
       };
     } catch (error) {
       // 处理错误并抛出
-      console.error("Error getting all users:", error);
       throw error;
     }
   }
@@ -59,14 +65,12 @@ class UseContrller {
         },
       };
     } catch (err) {
-      // 处理错误并抛出
-      console.error("Error getting all users:", err);
       throw err;
     }
   }
 
   /**
-   * 用户修改密码方法
+   * 用户修改密码
    */
   async changePassword(ctx) {
     try {
@@ -75,54 +79,60 @@ class UseContrller {
       const { old_password, new_password } = ctx.request.body;
       const res = await getUserInfo({ id });
       const match = await comparePassword(old_password, res.password);
-      //2.更新到数据库
+
       if (match) {
         // 验证成功后进行加密
         const hash_password = await hashPassword(new_password);
-        if (!hash_password) {
-          return;
-        }
-        await updateById(id, { password: hash_password })
-          .then((res) => {
-            ctx.body = {
-              code: 0,
-              message: "修改密码成功",
-              result: res,
-            };
-          })
-          .catch((err) => {
-            ctx.body = {
-              code: "10007",
-              message: "修改密码失败",
-              result: "",
-            };
-            throw err;
-          });
-      } else {
+
+        if (!hash_password) return;
+        // 更新数据库
+        const res = await updateById(id, { password: hash_password });
         ctx.body = {
-          code: "10008",
-          message: "原密码错误",
-          result: "",
+          code: 0,
+          message: "修改密码成功",
+          result: res,
         };
+      } else {
+        ctx.app.emit("error", oldPasswordError, ctx);
       }
     } catch (error) {
-      // 处理错误并抛出
-      console.error("Error getting all users:", error);
+      ctx.app.emit("error", updatePasswordError, ctx);
       throw error;
     }
   }
 
+  async changeUser(ctx) {
+    try {
+      const { id } = ctx.state.user;
+      const data = ctx.request.body;
+      const res = await updateById(id, data);
+
+      if (res) {
+        const { password, ...data } = await getUserInfo({id});
+        ctx.body = {
+          code: 0,
+          message: "修改信息成功",
+          result: data,
+        };
+      } else {
+        ctx.app.emit("error", updateUserError, ctx);
+      }
+    } catch (error) {
+      ctx.app.emit("error", updateUserError, ctx);
+      throw error;
+    }
+  }
+  /**
+   * 查询用户
+   * @param {*} ctx
+   */
   async queryUserInfo(ctx) {
     try {
       const user = ctx.request.body;
       const { password, ...res } = await getUserInfo(user);
 
       if (!res) {
-        ctx.body = {
-          code: "10008",
-          message: "用户信息不存在",
-          result: "",
-        };
+        ctx.app.emit("error", notUserExited, ctx);
       } else {
         ctx.body = {
           code: 0,
@@ -131,8 +141,6 @@ class UseContrller {
         };
       }
     } catch (error) {
-      // 处理错误并抛出
-      console.error("Error getting all users:", error);
       throw error;
     }
   }
@@ -149,8 +157,6 @@ class UseContrller {
         result: res,
       };
     } catch (error) {
-      // 处理错误并抛出
-      console.error("Error getting all users:", error);
       throw error;
     }
   }

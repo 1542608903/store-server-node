@@ -40,16 +40,6 @@ module.exports = {
     message: "用户登录失败",
     result: "",
   },
-  passwordError: {
-    code: "10006",
-    message: "密码错误",
-    result: "",
-  },
-  invalidPasswordError: {
-    code: "10006",
-    message: "密码错误",
-    result: "",
-  },
   adminError: {
     code: "10006",
     message: "管理认证错误",
@@ -61,9 +51,25 @@ module.exports = {
     message: "密码不能为空",
     result: "",
   },
+
   updateUserError: {
     code: "10008",
     message: "修改信息失败",
+    result: "",
+  },
+  passwordError: {
+    code: "10009",
+    message: "密码错误",
+    result: "",
+  },
+  updatePasswordError: {
+    code: "10010",
+    message: "修改密码失败",
+    result: "",
+  },
+  oldPasswordError: {
+    code: "10011",
+    message: "原密码错误",
     result: "",
   },
   TokenExpiredError: {
@@ -108,6 +114,21 @@ module.exports = {
     message: `仅支持：${FILE_TYPE}`,
     result: {},
   },
+  minioServrError: {
+    code: "10203",
+    message: "minio服务器出错",
+    result: "",
+  },
+  onlineServrError: {
+    code: "10204",
+    message: "online服务器出错",
+    result: "",
+  },
+  localServrError: {
+    code: "10205",
+    message: "local服务器出错",
+    result: "",
+  },
   goodsFormatError: {
     code: "10203",
     message: "商品参数格式错误",
@@ -130,7 +151,7 @@ module.exports = {
   },
   getCartError: {
     code: "10303",
-    message: "获取购物车错误",
+    message: "没有购物车",
     result: "",
   },
   cartFormatError: {

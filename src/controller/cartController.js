@@ -4,7 +4,6 @@ const {
   removeCarts,
   selectALllCarts,
   oneUserCarts,
-  oneUserCart,
 } = require("../service/cartService");
 const {
   addCartError,
@@ -22,13 +21,13 @@ class CartController {
       // 1. 解析 user_id 和 goods_id
       const user_id = ctx.state.user.id;
       const { goods_id } = ctx.request.body;
+
       // 操作数据库，创建或更新购物车记录
       const res = await createOrUpdate(user_id, goods_id);
-      const cart = await oneUserCart(res.id, user_id);
       ctx.body = {
         code: 0,
         message: "添加购物车成功",
-        result: cart,
+        result: res,
       };
     } catch (error) {
       ctx.app.emit("error", addCartError, ctx);
@@ -44,15 +43,19 @@ class CartController {
   async findAll(ctx) {
     try {
       const { id } = ctx.state.user;
-      const { pageNum = 1, pageSize = 10 } = ctx.request.query;
-      await oneUserCarts(id, pageNum, pageSize).then((res) => {
-        ctx.body = {
-          code: 0,
-          message: "获取购物车列表成功",
-          result: res,
-        };
-      });
+      const { pageNum, pageSize } = ctx.request.query;
+
+      const res = await oneUserCarts(id, pageNum, pageSize);
+
+      ctx.body = {
+        code: 0,
+        message: "获取购物车列表",
+        result: res,
+      };
+
     } catch (error) {
+      console.log(error);
+      
       ctx.app.emit("error", getCartError, ctx);
       throw error;
     }
