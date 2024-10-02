@@ -67,57 +67,33 @@ class GoodsService {
    */
   async removeGoods(arr) {
     try {
-      // 使用 map 和 Promise.all 等待所有恢复操作完成
-      console.log(arr);
-
-      const results = await Promise.all(
-        arr.map(async (item) => {
-          return Goods.destroy({ where: { id: item } });
-        })
+      const promises = arr.map((item) =>
+        Goods.restore({ where: { id: item } })
       );
-      // 判断是否所有记录都已成功
-      const allRestored = results.every((result) => result); // 这里根据实际情况判断是否成功
-      return allRestored;
+      const result = await Promise.all(promises);
+      return result;
     } catch (error) {
-      // 处理错误并抛出
-      console.error("Error deleting goods:", error);
       throw error;
     }
   }
 
   /**
    * 恢复已删除的商品
-   * @param {Array<number>} arr - 商品的 ID 数组
-   * @returns {Promise<boolean>} 返回操作是否成功的布尔值
    */
   async restoreGoods(arr) {
     try {
-      // 使用 map 和 Promise.all 等待所有恢复操作完成
-      const results = await Promise.all(
-        arr.map(async (item) => {
-          return Goods.restore({ where: { id: item } });
-        })
+      const promises = arr.map((item) =>
+        Goods.restore({ where: { id: item } })
       );
-
-      // 判断是否所有记录都已恢复成功
-      const allRestored = results.every((result) => result); // 这里根据实际情况判断恢复是否成功
-      return allRestored;
+      const result = await Promise.all(promises);
+      return result;
     } catch (error) {
-      // 处理错误并抛出
-      console.error("Error restoring goods:", error);
       throw error;
     }
   }
 
   /**
    * 分页查询商品列表
-   * @param {number} pageNum - 当前页码
-   * @param {number} pageSize - 每页显示的商品数量
-   * @returns {Promise<Object>} 返回分页的商品列表及相关信息
-   * @property {number} pageNum - 当前页码
-   * @property {number} pageSize - 每页显示的商品数量
-   * @property {number} total - 商品总数
-   * @property {Array<Goods>} list - 商品列表
    */
   async findGoods(pageNum = 1, pageSize = 10) {
     try {
@@ -125,7 +101,7 @@ class GoodsService {
       const offset = (pageNum - 1) * pageSize;
       // 使用 findAndCountAll 方法进行分页查询
       const { count, rows } = await Goods.findAndCountAll({
-        offset: offset,
+        offset: +offset,
         limit: +pageSize,
       });
       // 返回分页数据
@@ -136,8 +112,6 @@ class GoodsService {
         list: rows,
       };
     } catch (error) {
-      // 处理错误并抛出
-      console.error("findGoods:", error);
       throw error;
     }
   }
@@ -146,16 +120,15 @@ class GoodsService {
     try {
       // 计算分页的偏移量
       const offset = (pageNum - 1) * pageSize;
-      const limit = +pageSize; // 转换为数字，确保 limit 参数是正确的类型
       const { count, rows } = await Goods.findAndCountAll({
         where: {
           deletedAt: {
             [Op.not]: null,
           },
         },
-        paranoid: false, // 禁用 `paranoid` 过滤
-        offset: offset,
-        limit: limit,
+        paranoid: false,
+        offset: +offset,
+        limit: +pageSize,
       });
       // 返回分页数据
       return {
@@ -165,8 +138,6 @@ class GoodsService {
         list: rows,
       };
     } catch (error) {
-      // 处理错误并抛出
-      console.error("getRemoveGoods:", error);
       throw error;
     }
   }
@@ -189,8 +160,6 @@ class GoodsService {
       });
       return res ? res : undefined;
     } catch (error) {
-      // 处理错误并抛出
-      console.error("findAllGoodsById:", error);
       throw error;
     }
   }
@@ -199,18 +168,14 @@ class GoodsService {
     try {
       const res = await Goods.update({ goods_num }, { where: id });
     } catch (error) {
-      // 处理错误并抛出
-      console.error("updateStockById:", error);
       throw error;
     }
   }
 
   /**
-   *
-   * @param {String} name
-   * @returns
+   *搜索商品
    */
-  async searchGoods(name) {
+  async searchGoods(name, number = 5) {
     try {
       const res = await Goods.findAll({
         where: {
@@ -219,12 +184,10 @@ class GoodsService {
           },
           deletedAt: null,
         },
-        limit: 20,
+        limit: +number,
       });
       return res ? res : undefined;
     } catch (error) {
-      // 处理错误并抛出
-      console.error("searchGoods:", error);
       throw error;
     }
   }

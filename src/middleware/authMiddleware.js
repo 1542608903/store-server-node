@@ -8,13 +8,10 @@ const {
   refreshTokenError,
   serverError,
 } = require("../constant/errType"); // 导入错误类型
-const { isAdmin } = require("../service/userService");
+const { isAdmin, getUserInfo } = require("../service/userService");
 
 /**
  * 验证用户身份的中间件
- * @param {Object} ctx - Koa 的上下文对象，包含请求和响应信息
- * @param {Function} next - Koa 的下一个中间件函数
- * @returns {Promise<void>}
  */
 const auth = async (ctx, next) => {
   try {
@@ -24,14 +21,13 @@ const auth = async (ctx, next) => {
     // 检查是否携带
     if (!authorization) return ctx.app.emit("error", NullTokenError, ctx);
 
-    // 去掉 'Bearer ' 前缀，提取实际的 token 值
     const token = authorization.replace("Bearer ", "");
 
     // 验证 token 的合法性
     const user = await verifyToken(token, JWT_SECRET);
 
     ctx.state.user = user;
-    // 调用下一个中间件
+
     await next();
   } catch (err) {
     switch (err.name) {
@@ -45,20 +41,20 @@ const auth = async (ctx, next) => {
 
 /**
  * 检查是否是管理员
- * @param {Object} ctx
- * @param {Function} next
- * @returns {Promise<void>}
  */
 const verifAdmin = async (ctx, next) => {
   try {
-    const { user_name } = await ctx.state.user;
-    const res = await isAdmin(user_name);
-    if (res === null) {
-      return ctx.app.emit("error", ontAdmin, ctx);
+    const { id, user_name } = await ctx.state.user;
+    const res = await getUserInfo({ id, user_name });
+    
+    if (res?.is_admin) {
+      await next();
+    } else {
+      ctx.app.emit("error", ontAdmin, ctx);
     }
-    await next();
   } catch (err) {
-    return ctx.app.emit("error", serverError, ctx);
+    ctx.app.emit("error", serverError, ctx);
+    throw err;
   }
 };
 
@@ -73,7 +69,6 @@ const refreshToken = async (ctx, next) => {
     const token = authorization.replace("Bearer ", "");
     const { iat, exp, vaild, ...user } = await verifyToken(token, JWT_SECRET);
     ctx.state.user = user;
-    // 刷新token
     // 刷新token
     const accessToken = await createToken(user, "1h");
     const refreshToken = await createToken(user, "1h");

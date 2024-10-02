@@ -13,7 +13,6 @@ const {
 
 const { cartFormatError } = require("../constant/errType");
 
-// 实例化路由，并设置前缀为 '/carts'
 const router = new Router({ prefix: "/cart" });
 
 // 路由：添加商品到购物车

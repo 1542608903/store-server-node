@@ -11,26 +11,19 @@ class OrderService {
     try {
       // 创建订单
       const res = await Order.create(order, { transaction });
-
-      // 为每个订单项设置 order_id
       orderItems = orderItems.map((item) => ({
         order_id: res.id,
         goods_id: +item.id,
         price: item.goods_price,
         quantity: item.quantity,
       }));
-
-      // 创建订单项
       await OrderItem.bulkCreate(orderItems, { transaction });
-
-      // 提交事务
       await transaction.commit();
-      // 返回订单详细信息
+
       return res.dataValues;
     } catch (err) {
-      // 确保回滚事务
-      if (transaction) await transaction.rollback();
-      throw err; // 抛出错误
+      await transaction.rollback();
+      throw err;
     }
   }
 
@@ -40,9 +33,10 @@ class OrderService {
       // 查询数据库
       const offset = (pageNum - 1) * pageSize;
       const { rows, count } = await Order.findAndCountAll({
-        where: { user_id }, // 查询指定的订单
+        where: { user_id },
         offset: offset,
         limit: pageSize,
+        order: [["createdAt", "DESC"]],
         include: [
           {
             model: OrderItem, // 包含订单项
@@ -77,17 +71,17 @@ class OrderService {
     try {
       await OrderItem.destroy({
         where: { order_id },
-        transaction, // 事务
+        transaction,
       });
 
       const res = await Order.destroy({
         where: { order_id },
-        transaction, // 事务
+        transaction,
       });
 
-      return res; // 返回删除操作的结果
+      return res;
     } catch (err) {
-      throw err; // 抛出错误
+      throw err;
     }
   }
 
@@ -95,8 +89,7 @@ class OrderService {
     try {
       const res = await Order.findByPk(id);
       if (res) {
-        res.state = 1; // 假设状态字段是 status，并设置为1表示已处理
-
+        res.state = 1;
         await res.save();
         return res;
       }
@@ -111,7 +104,7 @@ class OrderService {
    * @param {string} goods_name
    * @returns
    */
-  async orderSearch(user_id, goods_name) {
+  async orderSearch(user_id, name) {
     try {
       const orders = await Order.findAll({
         where: { user_id },
@@ -124,7 +117,7 @@ class OrderService {
                 as: "product",
                 where: {
                   goods_name: {
-                    [Op.like]: `%${goods_name}%`,
+                    [Op.like]: `%${name}%`,
                   },
                   deletedAt: null,
                 },

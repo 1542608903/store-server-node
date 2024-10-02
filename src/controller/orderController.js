@@ -30,11 +30,10 @@ class OrderController {
       let price = 0;
 
       data.forEach((item) => {
-        // price保留两位小数
         price += item.goods_price * item.quantity;
         price = +price.toFixed(2);
+        
       });
-
       // 生成订单号
       const order_number = `D${genid.NextId()}`;
       // 创建订单data
@@ -42,7 +41,7 @@ class OrderController {
         user_id,
         address_id: id,
         total_price: +price,
-        state: 0, //0 未支付 1已支付
+        state: 0,
         order_number,
       };
       // 创建订单
@@ -51,7 +50,7 @@ class OrderController {
       ctx.body = {
         code: 0,
         message: "订单创建成功",
-        result: { order: res }, // 返回创建的订单详细信息
+        result: { order: res },
       };
     } catch (error) {
       ctx.app.emit("error", creatOrderError, ctx);
@@ -100,11 +99,8 @@ class OrderController {
 
   async updateStatus(ctx) {
     try {
-      const user_id = ctx.state.user.id;
       const { id } = ctx.request.params;
       const res = await updateOrderStatus(id);
-      // const order = await findOrderById(user_id, id);
-
       ctx.body = {
         code: 0,
         message: "状态更新成功",
@@ -119,8 +115,8 @@ class OrderController {
   async search(ctx) {
     try {
       const user_id = ctx.state.user.id;
-      const { goods_name } = ctx.request.body;
-      const res = await orderSearch(user_id, goods_name);
+      const { name } = ctx.request.query;
+      const res = await orderSearch(user_id, name);
       ctx.body = {
         code: 0,
         message: "搜索订单成功",
@@ -133,20 +129,19 @@ class OrderController {
   }
 
   async getOneOrder(ctx) {
-    const user_id = ctx.state.user.id;
-    const { id } = ctx.params;
-    await findOrderById(user_id, id)
-      .then((res) => {
-        ctx.body = {
-          code: 0,
-          message: "获取订单成功",
-          result: { order: res },
-        };
-      })
-      .catch((error) => {
-        ctx.app.emit("error", verifyOntOrder, ctx);
-        throw error;
-      });
+    try {
+      const user_id = ctx.state.user.id;
+      const id = ctx.params.id;
+      const res = await findOrderById(user_id, id);
+      ctx.body = {
+        code: 0,
+        message: "获取订单成功",
+        result: { order: res },
+      };
+    } catch (error) {
+      ctx.app.emit("error", verifyOntOrder, ctx);
+      throw error;
+    }
   }
 }
 

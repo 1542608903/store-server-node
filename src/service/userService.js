@@ -53,18 +53,6 @@ class UserService {
     // 判断更新是否成功
     return res[0] > 0;
   }
-
-  async isAdmin(user_name) {
-    const is_admin = true;
-    const res = await User.findOne({
-      attributes: ["id", "user_name", "password", "is_admin"], // 要查询的字段
-      where: {
-        user_name,
-        is_admin,
-      },
-    });
-    return res ? res.dataValues : null;
-  }
   /**
    * 查询所有用户
    * @param {number} [pageSize=20] - 每页大小
@@ -74,28 +62,19 @@ class UserService {
   async findAllUser(pageSize = 20, pageNum = 1) {
     try {
       const offset = (pageNum - 1) * pageSize;
-
       const { count, rows } = await User.findAndCountAll({
-        attributes: [
-          "id",
-          "avatar",
-          "nick_name",
-          "email",
-          "user_name",
-          "is_admin",
-          "createdAt",
-          "updatedAt",
-        ],
-        limit: pageSize,
-        offset: offset,
+        limit: +pageSize,
+        offset: +offset,
+        order: [["createdAt", "DESC"]],
       });
 
       return {
+        pageNum,
+        pageSize,
         total: count,
         users: rows,
       };
     } catch (error) {
-      console.error("Error fetching users:", error);
       throw error;
     }
   }

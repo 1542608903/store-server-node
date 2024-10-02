@@ -3,8 +3,6 @@ const {
   userAlreadyExited,
   userRegisterError,
   notUserExited,
-  userLoginError,
-  invalidPasswordError,
   passwordError,
   emailExited,
 } = require("../constant/errType");

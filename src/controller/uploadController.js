@@ -1,4 +1,3 @@
-const path = require("path");
 const {
   fileUploadError,
   localServrError,
@@ -13,9 +12,9 @@ const {
   STORAGE_HOST,
 } = require("../config/config.default");
 class uploadController {
+
   /**
    * 处理图片上传
-   * @returns {Promise<Object>}
    */
   async upload(ctx) {
     const { file } = ctx.request.files;

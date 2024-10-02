@@ -55,15 +55,14 @@ class CartService {
         where: { user_id },
         offset: +offset,
         limit: +pageSize,
+        order: [["createdAt", "DESC"]],
         include: {
           model: Goods,
           as: "product",
         },
       });
-      // 确保返回的页码和总页数正确
       const totalPages = Math.ceil(count / pageSize);
       pageNum = Math.min(pageNum, totalPages);
-
       return {
         pageNum,
         pageSize: +pageSize,
@@ -71,6 +70,8 @@ class CartService {
         list: rows,
       };
     } catch (error) {
+      console.log(error);
+      
       throw error;
     }
   }

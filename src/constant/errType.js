@@ -74,13 +74,13 @@ module.exports = {
   },
   TokenExpiredError: {
     code: "10101",
-    message: "身份已过期",
+    message: "登录已过期",
     result: "",
   },
   // token
   JsonWebTokenError: {
     code: "10102",
-    message: "身份不存在",
+    message: "验证信息不存在",
     result: "",
   },
   NullTokenError: {
@@ -103,7 +103,6 @@ module.exports = {
     message: "你不是管理员",
     result: "",
   },
-
   fileUploadError: {
     code: "10201",
     message: "文件上传失败",
@@ -116,22 +115,22 @@ module.exports = {
   },
   minioServrError: {
     code: "10203",
-    message: "minio服务器出错",
+    message: "minio文件服务器出错",
     result: "",
   },
   onlineServrError: {
     code: "10204",
-    message: "online服务器出错",
+    message: "online文件服务器出错",
     result: "",
   },
   localServrError: {
     code: "10205",
-    message: "local服务器出错",
+    message: "local文件服务器出错",
     result: "",
   },
   goodsFormatError: {
     code: "10203",
-    message: "商品参数格式错误",
+    message: "商品有误",
     result: "",
   },
   publishGoodsError: {
@@ -146,27 +145,27 @@ module.exports = {
   },
   addCartError: {
     code: "10301",
-    message: "添加购物车失败",
+    message: "添加购物车出错",
     result: "",
   },
   getCartError: {
     code: "10303",
-    message: "没有购物车",
+    message: "您没有购物车",
     result: "",
   },
   cartFormatError: {
     code: "10304",
-    message: "购物车数据格式错误",
+    message: "购物车有误",
     result: "",
   },
   addressFormatError: {
     code: "10400",
-    message: "地址数据格式错误",
+    message: "地址有误",
     result: "",
   },
   addressUpdateError: {
     code: "10401",
-    message: "更新地址错误",
+    message: "修改地址出错",
     result: "",
   },
   addressNotExited: {
@@ -196,16 +195,16 @@ module.exports = {
   },
   updateOrderError: {
     code: "10503",
-    message: "修改订单失败",
+    message: "更新订单状态失败",
     result: "",
   },
   orderTotalPriceError: {
     code: "10504",
-    message: "订单总价错误",
+    message: "订单价格错误",
   },
   orderFormError: {
     code: "10505",
-    message: "订单格式错误",
+    message: "订单有误",
   },
   // 限流错误类型
   limitError: {
