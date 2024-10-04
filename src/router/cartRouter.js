@@ -6,7 +6,8 @@ const { auth } = require("../middleware/authMiddleware"); // 认证用户
 const {
   addCart,
   findAll,
-  update,
+  updateOneNumber,
+  updateOneChecke,
   remove,
   selectALll,
 } = require("../controller/cartController");
@@ -15,31 +16,36 @@ const { cartFormatError } = require("../constant/errType");
 
 const router = new Router({ prefix: "/cart" });
 
-// 路由：添加商品到购物车
 router.post("/add", auth, addCart);
 
-// 路由：获取用户的购物车列表
 router.get("/", auth, findAll);
 
-// 路由：更新购物车中的商品
 router.patch(
-  "/:id",
+  "/check/:id",
   auth,
   validateParams(
     {
-      number: { type: "number", required: false },
-      selected: { type: "bool", required: false },
+      selected: { type: "bool", required: true },
     },
     cartFormatError
   ),
-  update
+  updateOneChecke
 );
 
-// 路由：删除购物车中的商品
+router.patch(
+  "/number/:id",
+  auth,
+  validateParams(
+    {
+      number: { type: "number", required: true },
+    },
+    cartFormatError
+  ),
+  updateOneNumber
+);
+
 router.post("/remove", auth, remove);
 
-// 路由：购物车全选
 router.post("/selectAll", auth, selectALll);
 
-// 导出路由模块
 module.exports = router;

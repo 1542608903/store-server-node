@@ -71,21 +71,40 @@ class CartService {
       };
     } catch (error) {
       console.log(error);
-      
+
       throw error;
     }
   }
-  async updateCarts(id, data) {
-    const { number, selected } = data;
-    const res = await Cart.update(
-      { selected, number },
-      {
-        where: {
-          id,
-        },
-      }
-    );
-    return res;
+  async updateChecke(id, selected) {
+    try {
+      const res = await Cart.update(
+        { selected },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateNumber(id, number) {
+    try {
+      const res = await Cart.update(
+        { number },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      return res;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async removeCarts(ids) {

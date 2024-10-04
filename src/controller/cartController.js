@@ -1,6 +1,7 @@
 const {
   createOrUpdate,
-  updateCarts,
+  updateChecke,
+  updateNumber,
   removeCarts,
   selectALllCarts,
   oneUserCarts,
@@ -54,20 +55,36 @@ class CartController {
   /**
    * 更新购物车
    */
-  async update(ctx) {
+  async updateOneChecke(ctx) {
     try {
       const { id } = ctx.request.params;
-      const data = ctx.request.body;
-      const res = await updateCarts(id, data);
+      const { selected } = ctx.request.body;
+      const res = await updateChecke(id, selected);
       ctx.body = {
         code: 0,
         message: "修改购物车成功",
         result: res,
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
+
+  async updateOneNumber(ctx) {
+    try {
+      const { id } = ctx.request.params;
+      const { number } = ctx.request.body;
+      const res = await updateNumber(id, number);
+      ctx.body = {
+        code: 0,
+        message: "修改购物车成功",
+        result: res,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   /**
    * 删除购物车
    */

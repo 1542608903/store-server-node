@@ -32,7 +32,6 @@ class OrderController {
       data.forEach((item) => {
         price += item.goods_price * item.quantity;
         price = +price.toFixed(2);
-        
       });
       // 生成订单号
       const order_number = `D${genid.NextId()}`;
