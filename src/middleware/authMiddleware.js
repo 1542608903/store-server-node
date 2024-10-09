@@ -15,15 +15,12 @@ const { isAdmin, getUserInfo } = require("../service/userService");
  */
 const auth = async (ctx, next) => {
   try {
-    // 从请求头中获取 authorization 字段
     const authorization = ctx.request.header?.authorization || "";
 
-    // 检查是否携带
     if (!authorization) return ctx.app.emit("error", NullTokenError, ctx);
 
     const token = authorization.replace("Bearer ", "");
 
-    // 验证 token 的合法性
     const user = await verifyToken(token, JWT_SECRET);
 
     ctx.state.user = user;
@@ -46,7 +43,7 @@ const verifAdmin = async (ctx, next) => {
   try {
     const { id, user_name } = await ctx.state.user;
     const res = await getUserInfo({ id, user_name });
-    
+
     if (res?.is_admin) {
       await next();
     } else {

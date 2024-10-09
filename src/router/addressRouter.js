@@ -5,6 +5,7 @@ const {
   update,
   isOnDefault,
   deleteAddress,
+  queryAddress,
 } = require("../controller/addressController");
 const { validateParams } = require("../middleware/genericMiddleware");
 const { auth } = require("../middleware/authMiddleware"); // 认证用户
@@ -15,13 +16,17 @@ const { addressFormatRoles } = require("../constant/rules");
 // 实例化路由，并设置前缀为 '/address'
 const router = new Router({ prefix: "/address" });
 
+router.get("/query",auth ,queryAddress);
+
 router.post(
   "/",
+  validateParams(addressFormatRoles, addressFormatError),
   auth,
-  // verildatot(addressFormatRoles, addressFormatError),
   create
 );
+
 router.post("/findAll", auth, findAll);
+
 router.put(
   "/",
   validateParams(addressFormatRoles, addressFormatError),
@@ -30,8 +35,8 @@ router.put(
   update
 );
 
-router.post("/on", auth, isOnDefault);
 router.post("/update_default", auth, isOnDefault);
+
 router.delete("/:id", auth, deleteAddress);
 
 module.exports = router;

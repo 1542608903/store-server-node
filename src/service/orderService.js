@@ -32,7 +32,11 @@ class OrderService {
     try {
       // 查询数据库
       const offset = (pageNum - 1) * pageSize;
-      const { rows, count } = await Order.findAndCountAll({
+
+      const orderCount = await Order.count({
+        where: { user_id },
+      });
+      const { rows } = await Order.findAndCountAll({
         where: { user_id },
         offset: offset,
         limit: pageSize,
@@ -54,7 +58,7 @@ class OrderService {
       });
 
       // 确保返回的页码和总页数正确
-      const totalPages = Math.ceil(count / pageSize);
+      const totalPages = Math.ceil(orderCount / pageSize);
       pageNum = Math.min(pageNum, totalPages);
       return {
         pageNum,

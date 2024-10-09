@@ -24,7 +24,17 @@ class OrderController {
   async create(ctx) {
     try {
       const user_id = ctx.state.user.id;
-      const { id, data } = ctx.request.body; // 获取商品信息
+
+      let data = ctx.request.body.data;
+
+      const { addressId, total } = data[0];
+
+      data = data.map((item) => ({
+        id: item.id,
+        goods_price: item.goods_price,
+        quantity: item.quantity,
+      }));
+
       const genid = new GenId({ WorkerId: 1 });
       // 计算总价
       let price = 0;
@@ -33,16 +43,23 @@ class OrderController {
         price += item.goods_price * item.quantity;
         price = +price.toFixed(2);
       });
+
+      if (data.lenght === 0) return ctx.app.emit("error", creatOrderError, ctx);
+      if (!total === price) {
+        return ctx.app.emit("error", orderTotalPriceError, ctx);
+      }
       // 生成订单号
       const order_number = `D${genid.NextId()}`;
+
       // 创建订单data
       const order = {
         user_id,
-        address_id: id,
+        address_id: addressId,
         total_price: +price,
         state: 0,
         order_number,
       };
+
       // 创建订单
       const res = await createOrder(order, data);
       // 返回消息

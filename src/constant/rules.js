@@ -53,24 +53,24 @@ module.exports = {
         goods_price: {
           type: "string",
           required: true,
-          pattern: /^\d+(\.\d{1,2})?$/, // 价格格式验证：数字，最多两位小数
+          pattern: /^\d+(\.\d{1,2})?$/,
         },
         quantity: {
           type: "number",
-          min: 1, // 数量必须大于等于1
+          min: 1,
           required: true,
+        },
+        addressId: {
+          type: "integer",
+          required: true,
+        },
+        total: {
+          type: "number",
+          required: true,
+          min: 0,
         },
       },
       required: true,
-    },
-    id: {
-      type: "integer",
-      required: true,
-    },
-    total: {
-      type: "number",
-      required: true,
-      min: 0, // 确保总金额为非负数
     },
   },
 };

@@ -178,6 +178,11 @@ module.exports = {
     message: "默认地址不能删除",
     result: "",
   },
+  onDefaultAddress: {
+    code: "10405",
+    message: "您没有设置默认地址",
+    result: "",
+  },
   creatOrderError: {
     code: "10500",
     message: "创建订单失败",

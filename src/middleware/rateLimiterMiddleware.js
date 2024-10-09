@@ -7,7 +7,7 @@ const rateLimiter = new RateLimiterMemory({
   storeClient: redis,
   keyPrefix: "koa-limiter",
   points: 1000, // 10 次请求
-  duration: 60, // 每 60 秒
+  duration: 1, // 每 60 秒
   blockDuration: 60, // 如果超过限制，阻止 300 秒
 });
 

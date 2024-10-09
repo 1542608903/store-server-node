@@ -69,14 +69,18 @@ class AddressService {
     }
   }
 
-  async defaultAddress(user_id) {
-    const is_default = true;
-    const res = await Address.findOne({
-      where: {
-        [Op.and]: [user_id, is_default],
-      },
-    });
-    return res ? res : null;
+  async queryDefaultAddress(user_id) {
+    try {
+      const is_default = true;
+      const res = await Address.findOne({
+        where: {
+          [Op.and]: [user_id, is_default],
+        },
+      });
+      return res ? res : null;
+    } catch (error) {
+      throw error
+    }
   }
 
   async deleteAddressById(user_id, id) {
@@ -84,8 +88,7 @@ class AddressService {
     const isDefault = await Address.findOne({
       where: { id, user_id, is_default: true },
     });
-    console.log(isDefault);
-
+    
     if (isDefault) {
       return 0;
     }

@@ -3,13 +3,14 @@ const {
   addressFindAll,
   addressUpdate,
   setDefaultAddress,
-  defaultAddress,
+  queryDefaultAddress,
   deleteAddressById,
 } = require("../service/addressService");
 const {
   addressUpdateError,
   addressNotExited,
   defaultAddressNotDel,
+  onDefaultAddress,
 } = require("../constant/errType");
 class AddressController {
   /**
@@ -56,9 +57,9 @@ class AddressController {
    * 更新地址
    */
   async update(ctx) {
-    const { id, ...data } = ctx.request.body;
-    const res = await addressUpdate(id, data);
     try {
+      const { id, ...data } = ctx.request.body;
+      const res = await addressUpdate(id, data);
       if (res) {
         return (ctx.body = {
           code: 0,
@@ -71,6 +72,7 @@ class AddressController {
       throw err;
     }
   }
+
   /**
    * 设置默认地址
    */
@@ -97,14 +99,20 @@ class AddressController {
   /**
    * 获取默认地址
    */
-  async getDefaultAddress() {
-    const user_id = ctx.state.user.id;
-    const res = await defaultAddress(user_id);
-    ctx.body = {
-      code: 0,
-      message: "获取默认地址",
-      result: res,
-    };
+  async queryAddress(ctx) {
+    try {
+      const user_id = ctx.state.user.id;
+      const res = await queryDefaultAddress(user_id);
+      if (!res) return ctx.app.emit("error", onDefaultAddress, ctx);
+      ctx.body = {
+        code: 0,
+        message: "获取默认地址",
+        result: res,
+      };
+    } catch (error) {
+      ctx.app.emit("error", onDefaultAddress, ctx);
+      throw error;
+    }
   }
 
   /**

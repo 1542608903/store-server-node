@@ -1,12 +1,6 @@
 const fs = require("fs");
 const Router = require("koa-router");
-const {
-  rateLimiterMiddleware,
-} = require("../middleware/rateLimiterMiddleware");
 const router = new Router();
-
-router.use(rateLimiterMiddleware);
-
 
 // 读取当前目录中的所有文件
 fs.readdirSync(__dirname).forEach((file) => {

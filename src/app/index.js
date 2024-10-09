@@ -8,6 +8,7 @@ const router = require("../router");
 const { UPLOAD_TYPE } = require("../config/config.default");
 const Model = require("../model/index");
 const app = new Koa();
+
 // 类型校验工具
 app.use(parameter(app));
 // 上传配置
@@ -21,7 +22,7 @@ switch (UPLOAD_TYPE) {
           keepExtensions: true,
           maxFieldsSize: 2 * 1024 * 1024,
         },
-        parsedMethods: ["POST", "PUT", "PATCH", "DELETE"],
+        parsedMethods: ["GET","POST", "PUT", "PATCH", "DELETE"],
       })
     );
     break;
