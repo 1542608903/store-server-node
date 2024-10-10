@@ -5,6 +5,7 @@ const {
   setDefaultAddress,
   queryDefaultAddress,
   deleteAddressById,
+  queryOneAddress,
 } = require("../service/addressService");
 const {
   addressUpdateError,
@@ -20,15 +21,19 @@ class AddressController {
    * @memberof AddressController
    */
   async create(ctx) {
-    const user_id = ctx.state.user.id;
-    const { consignee, phone, address } = ctx.request.body;
-    const data = { user_id, consignee, phone, address };
-    const { updatedAt, createdAt, ...res } = await addressCreate(data);
-    ctx.body = {
-      code: 0,
-      message: "添加地址成功",
-      result: { address: res },
-    };
+    try {
+      const user_id = ctx.state.user.id;
+      const { consignee, phone, address } = ctx.request.body;
+      const data = { user_id, consignee, phone, address };
+      const { updatedAt, createdAt, ...res } = await addressCreate(data);
+      ctx.body = {
+        code: 0,
+        message: "添加地址成功",
+        result: { address: res },
+      };
+    } catch (error) {
+      throw error
+    }
   }
 
   /**
@@ -122,17 +127,20 @@ class AddressController {
     try {
       const user_id = ctx.state.user.id;
       const id = ctx.params.id;
-      const res = await deleteAddressById(user_id, id);
-      if (res) {
-        ctx.app.emit("error", defaultAddressNotDel, ctx);
-      } else {
-        ctx.body = {
-          code: 0,
-          message: "删除成功",
-          result: res,
-        };
+      const address = await queryOneAddress(user_id, id);
+
+      if (address?.is_default) {
+        return ctx.app.emit("error", defaultAddressNotDel, ctx);
       }
+      const res = await deleteAddressById(user_id, id);
+
+      ctx.body = {
+        code: 0,
+        message: "删除成功",
+        result: res,
+      };
     } catch (error) {
+
       throw error;
     }
   }

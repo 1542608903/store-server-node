@@ -16,35 +16,43 @@ const { cartFormatError } = require("../constant/errType");
 
 const router = new Router({ prefix: "/cart" });
 
-router.post("/add", auth, addCart);
+router.post(
+  "/add",
+  validateParams({ goods_id: { type: "integer", required: true } }),
+  auth,
+  addCart
+);
 
 router.get("/", auth, findAll);
 
 router.patch(
   "/check/:id",
-  auth,
   validateParams(
-    {
-      selected: { type: "bool", required: true },
-    },
+    { selected: { type: "bool", required: true } },
     cartFormatError
   ),
+  auth,
   updateOneChecke
 );
 
 router.patch(
   "/number/:id",
-  auth,
   validateParams(
     {
       number: { type: "number", required: true },
     },
     cartFormatError
   ),
+  auth,
   updateOneNumber
 );
 
-router.post("/remove", auth, remove);
+router.post(
+  "/remove",
+  // validateParams({ type: "array", itemType: "number" }),
+  auth,
+  remove
+);
 
 router.post("/selectAll", auth, selectALll);
 

@@ -105,6 +105,7 @@ class UseContrller {
     try {
       const { id } = ctx.state.user;
       const data = ctx.request.body;
+      
       const res = await updateById(id, data);
 
       if (res) {

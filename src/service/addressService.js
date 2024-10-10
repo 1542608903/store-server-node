@@ -8,16 +8,21 @@ class AddressService {
    * @returns {Object}    -res
    */
   async addressCreate(data) {
-    const { user_id } = data;
-    let isDefault = false;
+    try {
+      const { user_id } = data;
+      let isDefault = false;
 
-    const { count } = await Address.findAndCountAll({ where: { user_id } });
+      const count = await Address.count({ where: { user_id } });
 
-    count == 0 ? (isDefault = true) : (isDefault = false);
+      count == 0 ? (isDefault = true) : (isDefault = false);
 
-    data["is_default"] = isDefault;
-    const res = await Address.create(data);
-    return res.dataValues;
+      data["is_default"] = isDefault;
+
+      const res = await Address.create(data);
+      return res.dataValues;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -26,11 +31,15 @@ class AddressService {
    * @returns
    */
   async addressFindAll(user_id) {
-    const res = await Address.findAll({
-      where: { user_id: user_id },
-      attributes: ["id", "address", "consignee", "phone", "is_default"],
-    });
-    return res;
+    try {
+      const res = await Address.findAll({
+        where: { user_id: user_id },
+        attributes: ["id", "address", "consignee", "phone", "is_default"],
+      });
+      return res;
+    } catch (error) {
+      throw error;
+    }
   }
   /**
    * 更新地址服务
@@ -38,10 +47,14 @@ class AddressService {
    * @param {Object} data
    */
   async addressUpdate(id, data) {
-    const res = await Address.update(data, {
-      where: { id },
-    });
-    return res[0] > 0 ? true : false;
+    try {
+      const res = await Address.update(data, {
+        where: { id },
+      });
+      return res[0] > 0 ? true : false;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async setDefaultAddress(id, user_id) {
@@ -74,26 +87,33 @@ class AddressService {
       const is_default = true;
       const res = await Address.findOne({
         where: {
-          [Op.and]: [user_id, is_default],
+          user_id: user_id, // 用户ID条件
+          is_default: is_default, // 默认地址条件
         },
       });
-      return res ? res : null;
+      return res ? res.dataValues : null;
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   async deleteAddressById(user_id, id) {
-    // 查找地址是否是默认地址
-    const isDefault = await Address.findOne({
-      where: { id, user_id, is_default: true },
-    });
-    
-    if (isDefault) {
-      return 0;
-    }
     const res = await Address.destroy({ where: { user_id, id } });
     return res;
+  }
+
+  async queryOneAddress(user_id, id) {
+    try {
+      const res = await Address.findOne({
+        where: {
+          id: id,
+          user_id: user_id,
+        },
+      });
+      return res ? res.dataValues : null;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
