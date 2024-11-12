@@ -11,7 +11,7 @@ fs.readdirSync(__dirname).forEach((file) => {
     if (typeof r.routes == "undefined") {
       return console.error("请导出路由", r);
     }
-    // 使用加载的路由文件中的路由
+    // 将加载的路由文件中的路由添加到路由实例中
     router.use(r.routes());
   }
 });

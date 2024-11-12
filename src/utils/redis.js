@@ -14,7 +14,7 @@ const client = redis.createClient({
   password: REDIS_PASSWORD,
   socket: {
     reconnectStrategy(retries) {
-      retryCount = retries+1;
+      retryCount = retries + 1;
       if (retryCount >= maxRetries) {
         console.log("Redis连接失败次数超过5次，自动断开连接");
         return new Error("停止重试连接");
@@ -89,7 +89,17 @@ const closeClient = () => {
   });
 };
 
+// 连接 Redis 数据库封装
+const connectRedis = async () => {
+  try {
+    await client.connect();
+  } catch (error) {
+    throw new Error("连接Redis数据库失败");
+  }
+};
+
 module.exports = {
+  connectRedis,
   setData,
   getData,
   delKey,

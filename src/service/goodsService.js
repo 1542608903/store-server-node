@@ -179,10 +179,11 @@ class GoodsService {
           },
           deletedAt: null,
         },
-        limit: number,
+        limit: +number,
       });
       return res ? res : null;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -279,7 +280,7 @@ class GoodsService {
    * @param {*} quantity 购买商品的数量
    * @param {*} transaction 事务
    */
-  async productInventory(id, quantity,transaction) {
+  async productInventory(id, quantity, transaction) {
     try {
       // 查询商品信息
       const product = await Goods.findOne({ where: { id }, transaction });
@@ -304,13 +305,13 @@ class GoodsService {
       throw error;
     }
   }
-/**
- * 查找一个商品
+  /**
+   * 查找一个商品
    * @param {Number} id 商品的id
- */
-  async getProductById(id){
-    const res =await Goods.findOne({where:{id}});
-    return res
+   */
+  async getProductById(id) {
+    const res = await Goods.findOne({ where: { id } });
+    return res;
   }
 }
 

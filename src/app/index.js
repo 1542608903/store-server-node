@@ -8,9 +8,23 @@ const router = require("../router");
 const { UPLOAD_TYPE } = require("../config/config.default");
 const Model = require("../model/index");
 const app = new Koa();
+const { connectRedis } = require("../utils/redis");
+
+// 连接redis
+connectRedis();
+
+// 静态资源
+app.use(KoaStatic(path.join(__dirname, "../public")));
+
+// 路由
+app.use(router.routes()).use(router.allowedMethods());
+
+// 错误处理
+app.on("error", errHandler);
 
 // 类型校验工具
 app.use(parameter(app));
+
 // 上传配置
 switch (UPLOAD_TYPE) {
   case "local":
@@ -25,7 +39,6 @@ switch (UPLOAD_TYPE) {
           // 文件大小是 2M
           maxFieldsSize: 2 * 1024 * 1024,
         },
-        // 解析错误时抛出异常
         parsedMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       })
     );
@@ -71,5 +84,4 @@ app.use(router.routes()).use(router.allowedMethods());
 // 全局错误处理
 app.on("error", errHandler);
 
-// 导出服务器而不是 Koa 实例
 module.exports = { app };

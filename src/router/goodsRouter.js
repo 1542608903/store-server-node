@@ -36,17 +36,17 @@ router.post("/off", auth, verifAdmin, removal);
 // 路由：恢复删除的商品
 router.post("/on", auth, verifAdmin, restore);
 
+// 路由：获取所有删除的商品
+router.post("/removal", auth, verifAdmin, findAllRemoval);
+
 // 路由：获取所有商品
 router.get("/", findAll);
 
 // 路由：获取一个商品
-router.get("/:id", getProduct);
-
-// 路由：获取所有删除的商品
-router.post("/removal", auth, verifAdmin, findAllRemoval);
+router.get("/queryProduct/:id", getProduct);
 
 // 路由：商品搜索
-router.get("/search", getProductSearch);
+router.get("/search_goods", getProductSearch);
 
 // 新品
 router.get("/new_goods", queryNewGoods);

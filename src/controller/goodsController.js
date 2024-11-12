@@ -172,14 +172,19 @@ class GoodsController {
       throw error;
     }
   }
+
   async getProduct(ctx) {
-    const { id } = ctx.request.query;
-    const res = await getProductById(id);
-    ctx.body = {
-      code: 0,
-      message: "查询成功",
-      result: res,
-    };
+    try {
+      const { id } = ctx.request.query;
+      const res = await getProductById(id);
+      ctx.body = {
+        code: 0,
+        message: "查询成功",
+        result: res,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
