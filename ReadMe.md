@@ -62,7 +62,7 @@ store-server-node
 # 文件存储
 需要在src/public下创建一个upload文件夹，用于存储上传的文件
 
-# GITHUB提交
+# 四、GITHUB提交
 ```git
 git add .
 
@@ -74,6 +74,7 @@ git push origin master
 
 ```
 
+### git pull
 1. 将自己新写的代码备份到其他地方。
 2. 删除本地项目里自己新写的代码。
 3. git pull 下拉代码，使本地代码与远端代码一致。
