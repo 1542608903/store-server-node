@@ -1,17 +1,18 @@
 const { delKey, getData } = require("../utils/redis");
 const { verifyCaptcha } = require("../utils/captcha");
 const { captchaLose, captchaError } = require("../constant/errType");
+
 const validateCaptcha = async (ctx, next) => {
+  console.log(ctx.request.body);
+
   try {
-    const { codeKey, code: userCode } = ctx.request.body;
+    const codeKey = ctx.request.body.codeKey;
+    const userCode = ctx.request.body.code;
 
     // 验证码键和用户输入验证码不能为空的检查
-    if (!codeKey && userCode) {
-      return (ctx.body = {
-        code: 0,
-        message: "请输入验证码",
-        result: "",
-      });
+    if (!codeKey || !userCode) {
+      ctx.app.emit("error", captchaLose, ctx);
+      return;
     }
 
     // 获取 Redis 中的验证码
@@ -24,7 +25,9 @@ const validateCaptcha = async (ctx, next) => {
     }
 
     // 比较验证码
-    if (verifyCaptcha(serverCode, userCode)) {
+    const isRight = verifyCaptcha(serverCode, userCode);
+
+    if (isRight) {
       // 验证成功，删除验证码
       await delKey(codeKey);
       await next();

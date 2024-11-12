@@ -90,7 +90,7 @@ class CartController {
    */
   async remove(ctx) {
     try {
-      const ids = ctx.request.body;
+      const { ids } = ctx.request.body;
       const res = await removeCarts(ids);
       if (res) {
         ctx.body = {

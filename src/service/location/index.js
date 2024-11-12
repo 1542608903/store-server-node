@@ -4,7 +4,6 @@ const City = require("../../model/area/City");
 const Street = require("../../model/area/Street");
 const Village = require("../../model/area/Village");
 class LocationService {
-
   async queryProvinces() {
     const provinces = await Province.findAll();
     return provinces;
@@ -12,8 +11,6 @@ class LocationService {
 
   async queryCities(provinceCode) {
     const cities = await City.findAll({ where: { provinceCode } });
-    console.log(cities);
-    
     return cities;
   }
 
@@ -26,7 +23,7 @@ class LocationService {
     const streets = await Street.findAll({ where: { areaCode } });
     return streets;
   }
-  
+
   async queryVillages(streetCode) {
     const villages = await Village.findAll({ where: { streetCode } });
     return villages;

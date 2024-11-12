@@ -72,7 +72,6 @@ const delKeyAll = async (key) => {
   try {
     if (!client.isOpen) await client.connect();
     const keys = await client.keys(`${key}*`);
-    console.log(keys);
     if (keys.length > 0) {
       await client.del(...keys);
     }

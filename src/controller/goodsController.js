@@ -175,7 +175,7 @@ class GoodsController {
 
   async getProduct(ctx) {
     try {
-      const { id } = ctx.request.query;
+      const id = ctx.query.id; 
       const res = await getProductById(id);
       ctx.body = {
         code: 0,
@@ -183,6 +183,8 @@ class GoodsController {
         result: res,
       };
     } catch (error) {
+      console.log(error);
+
       throw error;
     }
   }

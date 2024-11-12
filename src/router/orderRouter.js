@@ -6,7 +6,6 @@ const {
   findAllOrder,
   deleteOrder,
   updateStatus,
-  search,
   getOneOrder,
 } = require("../controller/orderController");
 const { orderInfoRules } = require("../constant/rules");
@@ -22,8 +21,29 @@ router.post(
 );
 
 router.post("/", auth, findAllOrder);
-router.delete("/:id", auth, deleteOrder);
-router.post("/search", auth, search);
-router.get("/:id", auth, getOneOrder);
+router.delete(
+  "/:id",
+  validateParams(
+    {
+      id: { type: "integer", required: true },
+    },
+    orderFormError
+  ),
+  auth,
+  deleteOrder
+);
+
+router.get(
+  "/:id",
+  validateParams(
+    {
+      id: { type: "integer", required: true },
+    },
+    orderFormError
+  ),
+  auth,
+  getOneOrder
+);
 router.patch("/:id", auth, updateStatus);
+
 module.exports = router;

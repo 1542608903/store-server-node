@@ -53,8 +53,9 @@ class UseContrller {
       const { password, ...user } = await getUserInfo(userInfo);
 
       // 刷新token
-      const accessToken = await createToken(user, "3h");
-      const refreshToken = await createToken(user, "3h");
+      const accessToken = createToken(user, "3h");
+      const refreshToken = createToken(user, "3h");
+      // 返回数据
       ctx.body = {
         code: 0,
         message: "登录成功",
@@ -65,6 +66,8 @@ class UseContrller {
         },
       };
     } catch (error) {
+      console.log(error);
+      
       throw error;
     }
   }

@@ -20,9 +20,9 @@ const {
 const verifyUserExists = async (ctx, next) => {
   try {
     const user = ctx.request.body;
-
-    const res = await getUserInfo(user);
-
+    const data = { user_name: user.user_name };
+    const res = await getUserInfo(data);
+    console.log('user_name通过');
     if (res?.user_name === user.user_name) {
       // 若账号已存在，则抛出错误
       return ctx.app.emit("error", userAlreadyExited, ctx);
@@ -44,11 +44,11 @@ const verifyUserExists = async (ctx, next) => {
 const verifyEmailExists = async (ctx, next) => {
   try {
     const user = ctx.request.body;
-    
+
     const data = { email: user.email };
 
     const res = await getUserInfo(data);
-
+    console.log('email通过');
     if (res?.email === user?.email) {
       // 若邮箱已存在，则抛出错误
       return ctx.app.emit("error", emailExited, ctx);
@@ -84,8 +84,8 @@ const BcryptPassword = async (ctx, next) => {
 const verifyUser = async (ctx, next) => {
   try {
     const user = ctx.request.body;
-
     const res = await getUserInfo(user);
+    console.log('email通过');
 
     if (res && res.user_name === user.user_name) {
       // 如果用户存在，继续下一个中间件

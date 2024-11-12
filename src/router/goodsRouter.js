@@ -21,7 +21,7 @@ const {
   getProduct,
 } = require("../controller/goodsController");
 
-// 实例化路由，并设置前缀为 '/goods'
+// 实例化路由
 const router = new Router({ prefix: "/goods" });
 
 // 路由：创建商品
@@ -43,7 +43,7 @@ router.post("/removal", auth, verifAdmin, findAllRemoval);
 router.get("/", findAll);
 
 // 路由：获取一个商品
-router.get("/queryProduct/:id", getProduct);
+router.get("/product", getProduct);
 
 // 路由：商品搜索
 router.get("/search_goods", getProductSearch);

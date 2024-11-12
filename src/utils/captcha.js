@@ -33,6 +33,8 @@ const createCaptcha = async (ctx) => {
 const verifyCaptcha = (serverCode, userCode) => {
   try {
     if (serverCode.toLowerCase() !== userCode.toLowerCase()) {
+      console.log("验证码错误");
+      
       return false;
     } else {
       return true;

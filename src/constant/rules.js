@@ -1,4 +1,3 @@
-
 //邮箱域名只能是163.com，qq.com或者42du.cn。
 const emilRules =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -6,41 +5,76 @@ const emilRules =
 // 新的邮箱规则
 const newEmailRules = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
 module.exports = {
+  // registerRules: {
+  //   nik_name: { type: "string", required: false },
+  //   user_name: { type: "string", min: 4, max: 16, required: true },
+  //   email: { type: "string", required: true, format: newEmailRules },
+  //   password: { type: "string", min: 6, max: 16, required: true },
+  //   codeKey: { type: "string", required: true },
+  //   code: { type: "string", required: true },
+  // },
   registerRules: {
-    nik_name: { type: "string", required: false },
-    user_name: { type: "string", min: 4, max: 16, required: true },
-    email: { type: "string", required: true, format: newEmailRules },
-    password: { type: "string", min: 6, max: 16, required: true },
-    codeKey: { type: "string", required: true },
-    code: { type: "string", required: true },
+    nik_name: {
+      type: "string",
+      required: false, // 昵称不是必填项
+      max: 20, // 如果有限制，建议加上最大字符限制
+    },
+    user_name: {
+      type: "string",
+      min: 4,
+      max: 16,
+      required: true, // 用户名是必填项，限制字符长度在 4 到 16 之间
+    },
+    email: {
+      type: "string",
+      required: true, // 邮箱是必填项
+      format: newEmailRules, // 格式验证
+    },
+    password: {
+      type: "string",
+      min: 6,
+      max: 16,
+      required: true, // 密码是必填项，限制长度在 6 到 16 之间
+    },
+    codeKey: {
+      type: "string",
+      required: true, // 验证码密钥是必填项
+    },
+    code: {
+      type: "string",
+      required: true, // 验证码是必填项
+    },
   },
   loginRules: {
     user_name: {
       type: "string",
-      required: true,
+      required: true, // 用户名是必填项
       min: 4,
-      max: 16,
-      description: "用户名，必须是字符串，长度为 3 到 30 个字符",
+      max: 16, // 确保用户名长度在 4 到 16 字符之间
     },
     password: {
       type: "string",
-      required: true,
       min: 6,
       max: 16,
-      description:
-        "密码，必须是 6-20 位字符，至少包含一个大写字母、小写字母和数字",
+      required: true, // 密码是必填项，且长度在 6 到 16 字符之间
     },
-    codeKey: { type: "string", required: true },
-    code: { type: "string", required: true },
+    codeKey: {
+      type: "string",
+      required: true, // 验证码密钥是必填项
+    },
+    code: {
+      type: "string",
+      required: true, // 验证码是必填项
+    },
   },
 
   updateUserRules: {
     nick_name: { type: "string", required: false },
     email: { type: "string", required: false, format: newEmailRules },
     password: { type: "string", required: false },
-    // 头像
     avatar: { type: "string", required: false },
   },
+  // 商品
   goodsFormatRules: {
     goods_name: {
       type: "string",
@@ -67,8 +101,9 @@ module.exports = {
         "商品图片链接，必须是有效的 URL 地址，并且是图片格式（jpg, jpeg, png, gif）",
     },
   },
+  // 用户地址
   addressFormatRules: {
-    id: { type: "number", required: false },
+    id: { type: "integer", required: false },
     consignee: {
       type: "string",
       required: true, // 确保收件人是必填项
@@ -85,6 +120,7 @@ module.exports = {
       minLength: 2, // 地址至少要有一个字符
     },
   },
+  
   // 订单
   orderInfoRules: {
     data: {
@@ -123,5 +159,37 @@ module.exports = {
       required: true,
       description: "订单数据必须是包含商品信息的数组",
     },
+  },
+  // 购物车
+  cartFormatRules: {
+    goods_id: {
+      type: "integer",
+      required: true,
+      description: "商品 ID，必须是整数且必填",
+    },
+  },
+  cartSelectRules: {
+    id: {
+      type: "integer",
+      required: true,
+      description: "商品 ID，必须是整数且必填",
+    },
+    selected: { type: "boolean", required: true },
+  },
+  cartNumberRules: {
+    id: {
+      type: "integer",
+      required: true,
+      description: "商品 ID，必须是整数且必填",
+    },
+    number: {
+      type: "integer",
+      required: true,
+      description: "商品数量，必须是整数且必填",
+    },
+  },
+  // 购物车删除 数据类型[1,2,3]
+  cartDeleteRules: {
+    ids: { type: "array", itemType: "integer", required: true },
   },
 };

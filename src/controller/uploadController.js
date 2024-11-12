@@ -11,10 +11,10 @@ const {
   BASEURL,
   STORAGE_HOST,
 } = require("../config/config.default");
-class uploadController {
 
+class uploadController {
   /**
-   * 处理图片上传
+   * 图片上传
    */
   async upload(ctx) {
     const { file } = ctx.request.files;
@@ -27,7 +27,7 @@ class uploadController {
       }
 
       const res = await queryFileName(file);
-      
+
       const fileList = res.map(
         (item) => `${URL_BASEURL}${UPLOAD_TYPE}/${item}`
       );
@@ -69,6 +69,12 @@ class uploadController {
             result: {
               url: minioList.length === 1 ? minioList[0] : minioList,
             },
+          };
+          break;
+        default:
+          ctx.body = {
+            code: "-1",
+            message: "请选择正确的上传方式",
           };
           break;
       }
