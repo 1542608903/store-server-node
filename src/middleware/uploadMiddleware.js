@@ -21,6 +21,8 @@ const fileTypeValidator = async (ctx, next) => {
     }
   } catch (error) {
     await deleteOnlineImgs(file);
+    console.log(error);
+    
     throw error;
   }
 };

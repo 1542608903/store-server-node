@@ -4,26 +4,57 @@ const Goods = require("../model/product/goods");
 const Address = require("../model/address/address");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
-
+const { productInventory } = require("../service/goodsService");
+const { delKeyAll } = require("../utils/redis");
 class OrderService {
   async createOrder(order, orderItems) {
     const transaction = await seq.transaction(); // 开始事务
     try {
+      // 库存减少方法
+      await Promise.all(
+        orderItems.map(async (item) => {
+          return productInventory(item.id, item.quantity, transaction);
+        })
+      );
+
       // 创建订单
       const res = await Order.create(order, { transaction });
-      orderItems = orderItems.map((item) => ({
+
+      // 组合子订单项
+      const orderItemsData = orderItems.map((item) => ({
         order_id: res.id,
         goods_id: +item.id,
         price: item.goods_price,
         quantity: item.quantity,
       }));
-      await OrderItem.bulkCreate(orderItems, { transaction });
+
+      const orderService = new OrderService();
+
+      // 批量创建订单项
+      await orderService.createOrderItem(orderItemsData, transaction);
+      // 提交事务
       await transaction.commit();
 
       return res.dataValues;
-    } catch (err) {
+    } catch (error) {
       await transaction.rollback();
-      throw err;
+      console.error("创建订单失败:", error);
+      throw new Error("创建订单失败");
+    }
+  }
+  /**
+   *
+   * @param {*} orderItems 子订单项
+   */
+  async createOrderItem(orderItems, transaction) {
+    try {
+      // 批量创建订单项
+      await OrderItem.bulkCreate(orderItems, { transaction });
+      // 删除redis避免缓存
+      delKeyAll("product");
+    } catch (error) {
+      console.error("创建订单项失败:", error);
+      throw new Error("创建订单项失败");
     }
   }
 
@@ -135,6 +166,7 @@ class OrderService {
       throw error; // 抛出错误
     }
   }
+
   // 查询某个用户下的某个订单
   async findOrderById(user_id, id) {
     try {

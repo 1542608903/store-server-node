@@ -1,45 +1,45 @@
+
 //邮箱域名只能是163.com，qq.com或者42du.cn。
 const emilRules =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+// 新的邮箱规则
+const newEmailRules = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
 module.exports = {
   registerRules: {
     nik_name: { type: "string", required: false },
-    email: {
-      type: "string",
-      required: true,
-      format: emilRules,
-    },
-    user_name: { type: "string", required: true },
-    password: { type: "string", required: true },
+    user_name: { type: "string", min: 4, max: 16, required: true },
+    email: { type: "string", required: true, format: newEmailRules },
+    password: { type: "string", min: 6, max: 16, required: true },
+    codeKey: { type: "string", required: true },
+    code: { type: "string", required: true },
   },
   loginRules: {
     user_name: {
       type: "string",
       required: true,
       min: 4,
-      max: 20,
+      max: 16,
       description: "用户名，必须是字符串，长度为 3 到 30 个字符",
     },
     password: {
       type: "string",
       required: true,
       min: 6,
-      max: 20,
-      // format: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/,
+      max: 16,
       description:
         "密码，必须是 6-20 位字符，至少包含一个大写字母、小写字母和数字",
     },
+    codeKey: { type: "string", required: true },
+    code: { type: "string", required: true },
   },
 
   updateUserRules: {
-    nick_name: { type: "string", required: true },
-    email: {
-      type: "string",
-      required: true,
-      format: emilRules,
-    },
-    password: { type: "string", required: true },
+    nick_name: { type: "string", required: false },
+    email: { type: "string", required: false, format: newEmailRules },
+    password: { type: "string", required: false },
+    // 头像
+    avatar: { type: "string", required: false },
   },
   goodsFormatRules: {
     goods_name: {
@@ -68,6 +68,7 @@ module.exports = {
     },
   },
   addressFormatRules: {
+    id: { type: "number", required: false },
     consignee: {
       type: "string",
       required: true, // 确保收件人是必填项

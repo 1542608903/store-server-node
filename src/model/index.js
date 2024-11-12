@@ -26,8 +26,12 @@ Goods.hasMany(Cart, { foreignKey: "goods_id" });
 Cart.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
 
 // 订单项和商品关联关系
-Goods.hasMany(OrderItem, { foreignKey: "goods_id" });
-OrderItem.belongsTo(Goods, { foreignKey: "goods_id", as: "product" });
+OrderItem.belongsTo(Goods, {
+  foreignKey: "goods_id",
+  as: "product",
+  sourceKey: "id",
+});
+Goods.hasMany(OrderItem, { foreignKey: "goods_id", targetKey: "id" });
 
 // 地址和订单关系
 Address.hasMany(Order, { foreignKey: "address_id" });

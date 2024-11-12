@@ -8,7 +8,7 @@ const {
   refreshTokenError,
   serverError,
 } = require("../constant/errType"); // 导入错误类型
-const { isAdmin, getUserInfo } = require("../service/userService");
+const { getUserInfo } = require("../service/userService");
 
 /**
  * 验证用户身份的中间件
@@ -21,16 +21,19 @@ const auth = async (ctx, next) => {
 
     const token = authorization.replace("Bearer ", "");
 
-    const user = await verifyToken(token, JWT_SECRET);
+    // 解码
+    const decoded = verifyToken(token, JWT_SECRET);
 
-    ctx.state.user = user;
-
+    ctx.state.user = decoded;
     await next();
-  } catch (err) {
-    switch (err.name) {
+  } catch (error) {
+    switch (error.name) {
       case "TokenExpiredError":
         return ctx.app.emit("error", TokenExpiredError, ctx);
       case "JsonWebTokenError":
+        return ctx.app.emit("error", JsonWebTokenError, ctx);
+      default:
+        JsonWebTokenError.message = "令牌错误";
         return ctx.app.emit("error", JsonWebTokenError, ctx);
     }
   }
@@ -55,56 +58,44 @@ const verifAdmin = async (ctx, next) => {
   }
 };
 
-//刷新token的中间件
+/**
+ * 令牌刷新
+ * @returns
+ */
 const refreshToken = async (ctx, next) => {
-  const { authorization } = ctx.request.header;
-
-  if (!authorization) {
-    return ctx.app.emit("error", NullTokenError, ctx);
-  }
   try {
+    const { authorization } = ctx.request.header;
+
+    if (!authorization) {
+      return ctx.app.emit("error", NullTokenError, ctx);
+    }
+
     const token = authorization.replace("Bearer ", "");
-    const { iat, exp, vaild, ...user } = await verifyToken(token, JWT_SECRET);
-    ctx.state.user = user;
+
+    const decoded = verifyToken(token, JWT_SECRET);
+
+    ctx.state.user = decoded;
     // 刷新token
-    const accessToken = await createToken(user, "1h");
-    const refreshToken = await createToken(user, "1h");
+    const accessToken = await createToken(decoded, "1h");
+    const refreshToken = await createToken(decoded, "1h");
     // 返回token
     ctx.body = {
       code: 0,
-      message: "刷新成功",
+      message: "令牌刷新成功",
       result: {
         accessToken: accessToken,
         refreshToken: refreshToken,
       },
     };
     await next();
-  } catch (err) {
-    switch (err.name) {
+  } catch (error) {
+    switch (error.name) {
       case "TokenExpiredError":
         return ctx.app.emit("error", refreshTokenError, ctx);
       case "JsonWebTokenError":
         return ctx.app.emit("error", JsonWebTokenError, ctx);
-    }
-  }
-};
-
-// 检测token是否过期
-const verifyTokenExpired = async (ctx, next) => {
-  try {
-    const { authorization } = ctx.request.header;
-    if (!authorization) {
-      return ctx.app.emit("error", NullTokenError, ctx);
-    }
-    const token = authorization.replace("Bearer ", "");
-
-    const { vaild } = await verifyToken(token, JWT_SECRET);
-    if (vaild) await next();
-  } catch (error) {
-    switch (error.name) {
-      case "TokenExpiredError":
-        return ctx.app.emit("error", TokenExpiredError, ctx);
-      case "JsonWebTokenError":
+      default:
+        JsonWebTokenError.message = "令牌错误";
         return ctx.app.emit("error", JsonWebTokenError, ctx);
     }
   }
@@ -114,5 +105,4 @@ module.exports = {
   auth,
   verifAdmin,
   refreshToken,
-  verifyTokenExpired,
 };

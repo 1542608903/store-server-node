@@ -18,11 +18,15 @@ switch (UPLOAD_TYPE) {
       koaBody({
         multipart: true,
         formidable: {
+          // 上传文件目录
           uploadDir: path.join(__dirname, "../public/local"),
+          // 保留文件扩展名
           keepExtensions: true,
+          // 文件大小是 2M
           maxFieldsSize: 2 * 1024 * 1024,
         },
-        parsedMethods: ["GET","POST", "PUT", "PATCH", "DELETE"],
+        // 解析错误时抛出异常
+        parsedMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       })
     );
     break;
@@ -31,8 +35,11 @@ switch (UPLOAD_TYPE) {
       koaBody({
         multipart: true,
         formidable: {
+          // 上传文件目录
           uploadDir: path.join(__dirname, "../public/online"),
+          // 保留文件扩展名
           keepExtensions: true,
+          // 文件大小是 2M
           maxFieldsSize: 2 * 1024 * 1024,
         },
       })
@@ -43,8 +50,11 @@ switch (UPLOAD_TYPE) {
       koaBody({
         multipart: true,
         formidable: {
+          // 上传文件目录
           uploadDir: path.join(__dirname, "../public/minio"),
+          // 保留文件扩展名
           keepExtensions: true,
+          // 文件大小是 2M
           maxFieldsSize: 2 * 1024 * 1024,
         },
       })

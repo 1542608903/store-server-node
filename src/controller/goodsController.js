@@ -5,9 +5,13 @@ const {
   restoreGoods,
   findGoods,
   getRemoveGoods,
-  searchGoods,
+  searchGoodsByName,
+  queryNewGoogdsAll,
+  getGoodsWithTotalSales,
+  getProductById,
 } = require("../service/goodsService");
 const { publishGoodsError, invalidGoodsID } = require("../constant/errType");
+const Goods = require("../model/product/goods");
 class GoodsController {
   /**
    * 创建商品
@@ -127,12 +131,10 @@ class GoodsController {
     }
   }
 
-  async findAllSearch(ctx) {
+  async getProductSearch(ctx) {
     try {
-      const { name } = ctx.request.query;
-      const limit = 5;
-      const res = await searchGoods(name, limit);
-
+      const { name, limit } = ctx.request.query;
+      const res = await searchGoodsByName(name, limit);
       ctx.body = {
         code: 0,
         message: "搜索成功",
@@ -141,6 +143,43 @@ class GoodsController {
     } catch (error) {
       throw error;
     }
+  }
+
+  async queryNewGoods(ctx) {
+    try {
+      const { pageNum, pageSize } = ctx.request.query;
+      const res = await queryNewGoogdsAll(pageNum, pageSize);
+      ctx.body = {
+        code: 0,
+        message: "查询成功",
+        result: res,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+  async querySalesGoods(ctx) {
+    try {
+      const { pageNum, pageSize, order } = ctx.request.query;
+      const res = await getGoodsWithTotalSales(pageNum, pageSize, order);
+      ctx.body = {
+        code: 0,
+        message: "查询成功",
+        result: res,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getProduct(ctx) {
+    const { id } = ctx.request.query;
+    const res = await getProductById(id);
+    ctx.body = {
+      code: 0,
+      message: "查询成功",
+      result: res,
+    };
   }
 }
 

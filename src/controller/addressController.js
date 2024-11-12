@@ -6,6 +6,7 @@ const {
   queryDefaultAddress,
   deleteAddressById,
   queryOneAddress,
+  getAreasGroupedByLevel,
 } = require("../service/addressService");
 const {
   addressUpdateError,
@@ -29,10 +30,10 @@ class AddressController {
       ctx.body = {
         code: 0,
         message: "添加地址成功",
-        result: { address: res },
+        result: res,
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -50,7 +51,7 @@ class AddressController {
         code: 0,
         message: "查询地址成功",
         result: {
-          address: res,
+          list: res,
         },
       };
     } catch (err) {
@@ -64,12 +65,13 @@ class AddressController {
   async update(ctx) {
     try {
       const { id, ...data } = ctx.request.body;
+      console.log(data);
       const res = await addressUpdate(id, data);
       if (res) {
         return (ctx.body = {
           code: 0,
           message: "更新成功",
-          result: "",
+          result: res,
         });
       }
     } catch (err) {
@@ -96,7 +98,6 @@ class AddressController {
         ctx.app.emit("error", addressNotExited, ctx);
       }
     } catch (error) {
-      ctx.app.emit("error", addressNotExited, ctx);
       throw error;
     }
   }
@@ -132,6 +133,7 @@ class AddressController {
       if (address?.is_default) {
         return ctx.app.emit("error", defaultAddressNotDel, ctx);
       }
+
       const res = await deleteAddressById(user_id, id);
 
       ctx.body = {
@@ -140,7 +142,19 @@ class AddressController {
         result: res,
       };
     } catch (error) {
+      throw error;
+    }
+  }
 
+  async getAreas(ctx) {
+    try {
+      const res = await getAreasGroupedByLevel();
+      ctx.body = {
+        code: 0,
+        message: "查询成功",
+        result: res,
+      };
+    } catch (error) {
       throw error;
     }
   }

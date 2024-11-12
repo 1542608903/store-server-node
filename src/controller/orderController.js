@@ -6,13 +6,12 @@ const {
   getUserOrdersWithProducts,
   findOrderById,
 } = require("../service/orderService");
-
+const { queryDefaultAddress } = require("../service/addressService");
 const {
   creatOrderError,
   deleteOrderError,
   verifyOntOrder,
   updateOrderError,
-  orderTotalPriceError,
 } = require("../constant/errType");
 const GenId = require("../utils/IdGenerator");
 class OrderController {
@@ -27,48 +26,56 @@ class OrderController {
 
       let data = ctx.request.body.data;
 
-      const { addressId, total } = data[0];
+      if (data.lenght === 0) {
+        return ctx.app.emit("error", creatOrderError, ctx);
+      }
 
-      data = data.map((item) => ({
+      const address = await queryDefaultAddress(user_id);
+
+      if (!address.id) {
+        throw new Error("默认没有地址");
+      }
+
+      const genid = new GenId({ WorkerId: 1 });
+
+      // 计算总价
+      let totalPrice = 0;
+
+      data.map((item) => {
+        totalPrice += item.goods_price * item.quantity;
+        totalPrice = +totalPrice.toFixed(2);
+      });
+
+      // 生成订单号
+      const order_number = `D${genid.NextId()}`;
+
+      // 组合订单
+      const order = {
+        user_id,
+        address_id: +address.id,
+        total_price: totalPrice,
+        state: 0,
+        order_number,
+      };
+      
+      // 组合订单项
+      const orderItem = data.map((item) => ({
         id: item.id,
         goods_price: item.goods_price,
         quantity: item.quantity,
       }));
 
-      const genid = new GenId({ WorkerId: 1 });
-      // 计算总价
-      let price = 0;
-
-      data.forEach((item) => {
-        price += item.goods_price * item.quantity;
-        price = +price.toFixed(2);
-      });
-
-      if (data.lenght === 0) return ctx.app.emit("error", creatOrderError, ctx);
-      if (!total === price) {
-        return ctx.app.emit("error", orderTotalPriceError, ctx);
-      }
-      // 生成订单号
-      const order_number = `D${genid.NextId()}`;
-
-      // 创建订单data
-      const order = {
-        user_id,
-        address_id: addressId,
-        total_price: +price,
-        state: 0,
-        order_number,
-      };
-
       // 创建订单
-      const res = await createOrder(order, data);
+      const res = await createOrder(order, orderItem);
+
       // 返回消息
       ctx.body = {
         code: 0,
         message: "订单创建成功",
-        result: { order: res },
+        result: res,
       };
     } catch (error) {
+      creatOrderError.message = error.message;
       ctx.app.emit("error", creatOrderError, ctx);
       throw error;
     }
@@ -87,7 +94,7 @@ class OrderController {
               pageNum: res.pageNum,
               pageSize: res.pageSize,
               total: res.total,
-              order: res.list,
+              list: res.list,
             },
           };
         }
@@ -120,7 +127,7 @@ class OrderController {
       ctx.body = {
         code: 0,
         message: "状态更新成功",
-        result: { order: res },
+        result: res,
       };
     } catch (error) {
       ctx.app.emit("error", updateOrderError, ctx);
@@ -152,7 +159,7 @@ class OrderController {
       ctx.body = {
         code: 0,
         message: "获取订单成功",
-        result: { order: res },
+        result: res,
       };
     } catch (error) {
       ctx.app.emit("error", verifyOntOrder, ctx);

@@ -1,6 +1,8 @@
 const Address = require("../model/address/address");
+const Area = require("../model/area");
 const seq = require("../db/seq");
 const { Op } = require("sequelize");
+const { setData, getData } = require("../utils/redis");
 class AddressService {
   /**
    *添加地址服务
@@ -43,15 +45,15 @@ class AddressService {
   }
   /**
    * 更新地址服务
-   * @param {number} id
-   * @param {Object} data
+   * @param {number} id 地址id
+   * @param {Object} data 地址对象
    */
   async addressUpdate(id, data) {
     try {
       const res = await Address.update(data, {
         where: { id },
       });
-      return res[0] > 0 ? true : false;
+      return res;
     } catch (error) {
       throw error;
     }
@@ -77,7 +79,7 @@ class AddressService {
       return numberOfAffectedRows > 0;
     } catch (error) {
       await transaction.rollback(); // 回滚事务
-      console.error("Error setting default address:", error); // 使用 console.error 以便于错误追踪
+      
       throw error; // 重新抛出错误，以便调用者能够处理
     }
   }
@@ -112,6 +114,52 @@ class AddressService {
       });
       return res ? res.dataValues : null;
     } catch (error) {
+      throw error;
+    }
+  }
+
+  // 三级直辖区查询
+  async getAreasGroupedByLevel() {
+    try {
+      const areasKey = "areas";
+
+      if (await getData(areasKey)) {
+        return await getData(areasKey);
+      }
+      // 查询所有区域
+      const areas = await Area.findAll();
+
+      // 创建一个对象用于存储各级区域
+      const areaMap = {};
+
+      // 将区域数据按层级存入 areaMap
+      areas.forEach((area) => {
+        const { area_id, parent_id, name } = area;
+
+        // 如果当前区域的 parent_id 不存在，则初始化
+        if (!areaMap[area_id]) {
+          areaMap[area_id] = { id: area_id, name, children: [] };
+        }
+
+        // 将子区域添加到父区域的 children 中
+        if (parent_id) {
+          if (!areaMap[parent_id]) {
+            areaMap[parent_id] = { id: parent_id, children: [] }; // 确保父级区域存在
+          }
+          areaMap[parent_id].children.push(areaMap[area_id]);
+        }
+      });
+
+      // 提取根区域（没有 parent_id 的区域）
+      const result = Object.values(areaMap).filter(
+        (area) => !areas.find((a) => a.area_id === area.id && a.parent_id)
+      );
+      // 缓存
+      await setData(areasKey, result);
+
+      return result ? result : null;
+    } catch (error) {
+      console.error("查询区域失败:", error);
       throw error;
     }
   }

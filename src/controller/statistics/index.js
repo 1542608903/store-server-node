@@ -38,4 +38,5 @@ class statisticsController {
     };
   }
 }
+
 module.exports = new statisticsController();

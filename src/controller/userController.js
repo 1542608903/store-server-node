@@ -51,10 +51,10 @@ class UseContrller {
       // 获取用户信息
       const userInfo = ctx.request.body;
       const { password, ...user } = await getUserInfo(userInfo);
-      const { id, email, user_name } = user;
+
       // 刷新token
-      const accessToken = await createToken({ id, email, user_name }, "3h");
-      const refreshToken = await createToken({ id, email, user_name }, "3h");
+      const accessToken = await createToken(user, "3h");
+      const refreshToken = await createToken(user, "3h");
       ctx.body = {
         code: 0,
         message: "登录成功",
@@ -64,8 +64,8 @@ class UseContrller {
           refreshToken: refreshToken,
         },
       };
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -105,15 +105,15 @@ class UseContrller {
     try {
       const { id } = ctx.state.user;
       const data = ctx.request.body;
-      
+
       const res = await updateById(id, data);
 
       if (res) {
-        const { password, ...data } = await getUserInfo({id});
+        const { password, ...data } = await getUserInfo({ id });
         ctx.body = {
           code: 0,
           message: "修改信息成功",
-          result: data,
+          result: { user: data },
         };
       } else {
         ctx.app.emit("error", updateUserError, ctx);
@@ -138,7 +138,7 @@ class UseContrller {
         ctx.body = {
           code: 0,
           message: "查询成功",
-          result: res,
+          result: { user: res },
         };
       }
     } catch (error) {

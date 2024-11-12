@@ -21,9 +21,8 @@ class UserService {
    */
   async getUserInfo(user) {
     // 解构出信息，避免传入 undefined 时出错
-    const { id, email, user_name, is_admin } = user || {};
+    const { id, user_name, is_admin,email } = user || {};
 
-    // 条件查询构建（自动忽略 undefined 的值）
     const whereOpt = {
       ...(id && { id }),
       ...(email && { email }),
@@ -31,11 +30,13 @@ class UserService {
       ...(is_admin && { is_admin }),
     };
 
+    // 判断如果是一个空对象，则返回
+    if (Object.keys(whereOpt).length === 0) return;
+
     // 查询用户信息
     const res = await User.findOne({
       where: whereOpt,
     });
-
     // 返回查询结果
     return res?.dataValues || null;
   }
@@ -47,12 +48,23 @@ class UserService {
    * @returns {Promise<boolean>} 返回更新是否成功
    */
   async updateById(id, data) {
+    const { email, is_admin, avatar, nick_name, password } = data || {};
+
+    // 条件查询构建（自动忽略 undefined 的值）
+    const userData = {
+      ...(email && { email }),
+      ...(avatar && { avatar }),
+      ...(is_admin && { is_admin }),
+      ...(nick_name && { nick_name }),
+      ...(password && { password }),
+    };
     // 更新用户信息，返回更新操作的结果
-    const res = await User.update(data, { where: { id } });
+    const res = await User.update(userData, { where: { id } });
 
     // 判断更新是否成功
     return res[0] > 0;
   }
+
   /**
    * 查询所有用户
    * @param {number} [pageSize=20] - 每页大小

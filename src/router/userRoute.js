@@ -1,4 +1,3 @@
-// 引入 Koa 路由
 const Router = require("koa-router");
 // 导入控制器方法
 const {
@@ -7,25 +6,37 @@ const {
   changePassword,
   queryUserInfo,
   getAllUser,
-  changeUser
+  changeUser,
 } = require("../controller/userController");
+
 // 导入中间件
 const {
   verifyUserExists,
   BcryptPassword,
   verifyPassword,
   verifyUser,
-  verifyEmail,
+  verifyEmailExists,
 } = require("../middleware/userMiddleware");
 const { validateParams } = require("../middleware/genericMiddleware");
+
+// 中间件
 const {
   auth,
   verifAdmin,
   refreshToken,
 } = require("../middleware/authMiddleware");
-const { userFormateError } = require("../constant/errType");
-const { registerRules, loginRules } = require("../constant/rules");
 
+// 验证码中间件
+const { validateCaptcha } = require("../middleware/captchaMiddleware");
+
+// 错误类型
+const { userFormateError } = require("../constant/errType");
+// 规则
+const {
+  registerRules,
+  loginRules,
+  updateUserRules: changeUserRules,
+} = require("../constant/rules");
 
 const router = new Router({ prefix: "/user" });
 
@@ -34,8 +45,9 @@ const router = new Router({ prefix: "/user" });
 router.post(
   "/register",
   validateParams(registerRules, userFormateError),
+  validateCaptcha,
   verifyUserExists,
-  verifyEmail,
+  verifyEmailExists,
   BcryptPassword,
   register
 );
@@ -44,11 +56,11 @@ router.post(
 router.post(
   "/login",
   validateParams(loginRules, userFormateError),
+  validateCaptcha,
   verifyUser,
   verifyPassword,
   login
 );
-
 
 // 管理员登录接口
 router.post(
@@ -63,7 +75,12 @@ router.post(
 router.patch("/change-password", auth, changePassword);
 
 // 修改用户信息接口
-router.patch("/change-user", auth, changeUser);
+router.patch(
+  "/change-user",
+  validateParams(changeUserRules, userFormateError),
+  auth,
+  changeUser
+);
 
 // 查询用户信息
 router.post("/", auth, verifAdmin, queryUserInfo);

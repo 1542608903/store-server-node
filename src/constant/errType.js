@@ -12,7 +12,7 @@ module.exports = {
   },
   userFormateError: {
     code: "10001",
-    message: "用户格式错误",
+    message: "用户参数错误",
     result: "",
   },
   userAlreadyExited: {
@@ -45,13 +45,11 @@ module.exports = {
     message: "管理认证错误",
     result: "",
   },
-
   passwordNotError: {
     code: "10007",
     message: "密码不能为空",
     result: "",
   },
-
   updateUserError: {
     code: "10008",
     message: "修改信息失败",
@@ -80,17 +78,17 @@ module.exports = {
   // token
   JsonWebTokenError: {
     code: "10102",
-    message: "验证信息不存在",
+    message: "令牌错误",
     result: "",
   },
   NullTokenError: {
     code: "10103",
-    message: "未携带token",
+    message: "未携带令牌",
     result: "",
   },
   refreshTokenError: {
     code: "10106",
-    message: "刷新token过期",
+    message: "令牌过期",
     result: "",
   },
   hasNotAdminPermission: {
@@ -101,6 +99,16 @@ module.exports = {
   ontAdmin: {
     code: "10105",
     message: "你不是管理员",
+    result: "",
+  },
+  captchaError: {
+    code: "10106",
+    message: "验证码错误",
+    result: "",
+  },
+  captchaLose: {
+    code: "10107",
+    message: "验证码过期",
     result: "",
   },
   fileUploadError: {

@@ -48,6 +48,7 @@ class CartService {
       throw error;
     }
   }
+  
   async oneUserCarts(user_id, pageNum = 1, pageSize = 5) {
     try {
       const offset = (pageNum - 1) * pageSize;
@@ -70,8 +71,6 @@ class CartService {
         list: rows,
       };
     } catch (error) {
-      console.log(error);
-
       throw error;
     }
   }

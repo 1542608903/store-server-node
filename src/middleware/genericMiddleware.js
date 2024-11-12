@@ -6,20 +6,17 @@
 const validateParams = (customRules, customErrType) => {
   return async (ctx, next) => {
     try {
-      
-      if (!customRules || typeof customRules !== 'object') {
-        throw new Error('Invalid customRules: It must be an object.');
+      if (!customRules || typeof customRules !== "object") {
+        throw new Error("Invalid customRules: It must be an object.");
       }
 
       ctx.verifyParams(customRules);
 
       await next();
     } catch (err) {
-      console.error("Validation error:", err);
-
-      const errorDetails = err.errors || err.message || "Parameter validation failed";
-
-      ctx.app.emit("error", { ...customErrType, details: errorDetails }, ctx);
+      const errorDetails =
+        err.errors || err.message || "Parameter validation failed";
+      ctx.app.emit("error", { ...customErrType, result: errorDetails }, ctx);
     }
   };
 };

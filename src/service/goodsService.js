@@ -1,31 +1,11 @@
-const { Op } = require("sequelize");
+const { Op, fn, col, literal, QueryTypes, where } = require("sequelize");
 const Goods = require("../model/product/goods");
-
+const { setData, getData } = require("../utils/redis");
+const sequelize = require("../db/seq");
 class GoodsService {
-  /**
-   * 根据 ID 查找商品
-   * @param {number} id - 商品的 ID
-   * @returns {Promise<Goods>} 返回找到的商品实例
-   */
-  async findByPk(id) {
-    try {
-      // 使用 findByPk 方法查找商品
-      const res = await Goods.findByPk(id);
-      // 返回找到的商品实例
-      return res;
-    } catch (error) {
-      // 处理错误并抛出
-      console.error("Error finding goods:", error);
-      throw error;
-    }
-  }
-
   /**
    * 创建新的商品
    * @param {Object} goods - 包含商品信息的对象
-   * @param {string} goods.name - 商品名称
-   * @param {number} goods.price - 商品价格
-   * @param {string} [goods.description] - 商品描述（可选）
    * @returns {Promise<Object>} 返回创建的商品的详细信息
    */
   async createGoods(goods) {
@@ -33,10 +13,9 @@ class GoodsService {
       // 使用 create 方法创建新商品
       const res = await Goods.create(goods);
       // 返回创建的商品的数据值
-      return res.dataValues;
+      return res.dataValues ? res.dataValues : null;
     } catch (error) {
       // 处理错误并抛出
-      console.error("Error creating goods:", error);
       throw error;
     }
   }
@@ -97,24 +76,40 @@ class GoodsService {
    */
   async findGoods(pageNum = 1, pageSize = 10) {
     try {
+      const goodsKey = `product:${pageNum}:${pageSize}`;
+
+      // 检查是否有缓存
+      if (await getData(goodsKey)) {
+        return await getData(goodsKey);
+      }
+
       // 计算分页的偏移量
       const offset = (pageNum - 1) * pageSize;
-      // 使用 findAndCountAll 方法进行分页查询
+
+      // 分页查询
       const { count, rows } = await Goods.findAndCountAll({
         offset: +offset,
         limit: +pageSize,
       });
-      // 返回分页数据
-      return {
-        pageNum,
-        pageSize,
+
+      // 组合
+      const result = {
+        pageNum: +pageNum,
+        pageSize: +pageSize,
         total: count,
         list: rows,
       };
+
+      // redis缓存
+      await setData(goodsKey, result, 30 * 60);
+
+      // 返回分页数据
+      return result ? result : null;
     } catch (error) {
       throw error;
     }
   }
+
   // 获取下架商品
   async getRemoveGoods(pageNum = 1, pageSize = 8) {
     try {
@@ -158,7 +153,7 @@ class GoodsService {
           },
         },
       });
-      return res ? res : undefined;
+      return res ? res : null;
     } catch (error) {
       throw error;
     }
@@ -175,7 +170,7 @@ class GoodsService {
   /**
    *搜索商品
    */
-  async searchGoods(name, number = 5) {
+  async searchGoodsByName(name, number = 10) {
     try {
       const res = await Goods.findAll({
         where: {
@@ -184,12 +179,138 @@ class GoodsService {
           },
           deletedAt: null,
         },
-        limit: +number,
+        limit: number,
       });
-      return res ? res : undefined;
+      return res ? res : null;
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * 新品
+   * @param {*} pageNum
+   * @param {*} pageSize
+   * @returns
+   */
+  async queryNewGoogdsAll(pageNum = 1, pageSize = 10) {
+    try {
+      const newGoodsKey = `new_product:${pageNum}:${pageSize}`;
+
+      // 检查是否有缓存
+      if (await getData(newGoodsKey)) {
+        return await getData(newGoodsKey);
+      }
+
+      // 计算分页的偏移量
+      const offset = (pageNum - 1) * pageSize;
+      const count = await Goods.count();
+      // 分页查询
+      const res = await Goods.findAll({
+        offset: +offset,
+        limit: +pageSize,
+        order: [["createdAt", "DESC"]],
+      });
+
+      const result = {
+        pageNum: +pageNum,
+        pageSize: +pageSize,
+        total: count,
+        list: res,
+      };
+
+      // redis缓存
+      await setData(newGoodsKey, result, 30 * 60);
+
+      // 返回分页数据
+      return result ? result : null;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getGoodsWithTotalSales(pageNum = 1, pageSize = 10, order = "ASC") {
+    try {
+      const salesGoodsKey = `sales_product:${pageNum}:${pageSize}`;
+
+      // 检查是否有缓存
+      if (await getData(salesGoodsKey)) {
+        return await getData(salesGoodsKey);
+      }
+
+      const offset = (pageNum - 1) * pageSize;
+
+      const sql = `
+        SELECT goods.*, COALESCE(SUM(order_items.quantity), 0) AS totalSales
+        FROM goods
+        LEFT JOIN order_items ON goods.id = order_items.goods_id
+        WHERE goods.deletedAt IS NULL
+        GROUP BY goods.id
+        ORDER BY totalSales ${order}
+        LIMIT ${pageSize}
+        OFFSET ${offset}
+      `;
+
+      const [res, count] = await Promise.all([
+        sequelize.query(sql, {
+          type: QueryTypes.SELECT,
+        }),
+        Goods.count(),
+      ]);
+
+      const result = {
+        pageNum: +pageNum,
+        pageSize: +pageSize,
+        total: count,
+        list: res,
+      };
+
+      // redis缓存
+      await setData(salesGoodsKey, result, 30 * 60);
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 库存减少函数
+   * @param {*} id 商品的id
+   * @param {*} quantity 购买商品的数量
+   * @param {*} transaction 事务
+   */
+  async productInventory(id, quantity,transaction) {
+    try {
+      // 查询商品信息
+      const product = await Goods.findOne({ where: { id }, transaction });
+      if (!product) {
+        throw new Error("商品不存在");
+      }
+
+      // 检查库存是否足够
+      if (product.goods_num < quantity) {
+        throw new Error("库存不足");
+      }
+
+      // 使用事务更新库存
+      const updatedProduct = await product.update(
+        { goods_num: product.goods_num - quantity },
+        { transaction }
+      );
+
+      return updatedProduct;
+    } catch (error) {
+      console.error("更新库存失败:", error);
+      throw error;
+    }
+  }
+/**
+ * 查找一个商品
+   * @param {Number} id 商品的id
+ */
+  async getProductById(id){
+    const res =await Goods.findOne({where:{id}});
+    return res
   }
 }
 

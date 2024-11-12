@@ -20,15 +20,44 @@ const {
 const verifyUserExists = async (ctx, next) => {
   try {
     const user = ctx.request.body;
+
     const res = await getUserInfo(user);
-    if (!res) {
-      await next();
-    } else {
-      return ctx.app.emit("error", userAlreadyExited, ctx); // Modify error handling as needed
+
+    if (res?.user_name === user.user_name) {
+      // 若账号已存在，则抛出错误
+      return ctx.app.emit("error", userAlreadyExited, ctx);
     }
-  } catch (err) {
-    console.log("verifyUserExists:", err);
-    return ctx.app.emit("error", userRegisterError, ctx); // Modify error handling as needed
+
+    // 如果都不存在，继续执行下一个中间件
+    await next();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * 判断邮箱是否存在
+ * @param {Object} ctx
+ * @param {Function} next
+ * @returns {Promise<void>}
+ * */
+const verifyEmailExists = async (ctx, next) => {
+  try {
+    const user = ctx.request.body;
+    
+    const data = { email: user.email };
+
+    const res = await getUserInfo(data);
+
+    if (res?.email === user?.email) {
+      // 若邮箱已存在，则抛出错误
+      return ctx.app.emit("error", emailExited, ctx);
+    }
+
+    // 如果都不存在，继续执行下一个中间件
+    await next();
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -47,25 +76,25 @@ const BcryptPassword = async (ctx, next) => {
     ctx.request.body.password = hashedPassword;
     await next();
   } catch (err) {
-    console.log("BcryptPassword:", err);
-    return ctx.app.emit("error", userRegisterError, ctx); // Modify error handling as needed
+    return ctx.app.emit("error", userRegisterError, ctx);
   }
 };
 
-// 检测账号是否存在的方法
+// 登录时检测账号是否存在的方法
 const verifyUser = async (ctx, next) => {
   try {
-    const { ...user } = ctx.request.body;
+    const user = ctx.request.body;
+
     const res = await getUserInfo(user);
 
-    if (res.user_name === user.user_name) {
+    if (res && res.user_name === user.user_name) {
+      // 如果用户存在，继续下一个中间件
       await next();
     } else {
       return ctx.app.emit("error", notUserExited, ctx);
     }
-  } catch (err) {
-    ctx.app.emit("error", notUserExited, ctx);
-    throw err;
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -73,38 +102,33 @@ const verifyUser = async (ctx, next) => {
 const verifyPassword = async (ctx, next) => {
   try {
     const { password, ...user } = ctx.request.body;
-    const { password: hashedPassword } = await getUserInfo(user);
+    const userInfo = await getUserInfo(user);
+
+    // 检查用户是否存在
+    if (!userInfo) {
+      return ctx.app.emit("error", userNotFound, ctx);
+    }
+
+    // 获取存储的哈希密码
+    const { password: hashedPassword } = userInfo;
     const match = await comparePassword(password, hashedPassword);
+
+    // 如果密码不匹配，触发密码错误事件
     if (!match) {
       return ctx.app.emit("error", passwordError, ctx);
     }
-    await next();
-  } catch (err) {
-    ctx.app.emit("error", passwordError, ctx);
-    throw err;
-  }
-};
 
-// 匹配邮箱
-const verifyEmail = async (ctx, next) => {
-  try {
-    const user = ctx.request.body;
-    const res = await getUserInfo(user);
-    if (user.email === res.email) {
-      return ctx.app.emit("error", emailExited, ctx);
-    } else {
-      await next();
-    }
-  } catch (err) {
-    ctx.app.emit("error", emailExited, ctx);
-    throw err;
+    // 如果匹配，继续执行下一个中间件
+    await next();
+  } catch (error) {
+    throw error;
   }
 };
 
 module.exports = {
   verifyUser,
-  verifyEmail,
   BcryptPassword,
   verifyPassword,
   verifyUserExists,
+  verifyEmailExists,
 };

@@ -12,19 +12,18 @@ const User = seq.define(
     nick_name: {
       type: DataTypes.STRING,
       //是否为空
-      allowNull: true,
-      comment: "名称",
+      allowNull: false,
+      comment: "昵称",
     },
     avatar: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       comment: "头像",
     },
     email: {
       type: DataTypes.STRING,
       //是否为空
-      allowNull: true,
-      unique: true,
+      allowNull: false,
       comment: "邮箱",
     },
     user_name: {
