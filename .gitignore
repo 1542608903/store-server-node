@@ -1,12 +1,13 @@
+# 排除 node_modules 目录
 node_modules
 
-#排除图片文件
-!src/public/online/*.png
-!src/public/online/*.jpeg
-!src/public/local/*.png
-!src/public/local/*.jpeg
-!src/public/minio/*.png
-!src/public/minio/*.jpeg
-!src/public/online/*.jpg
-!src/public/local/*.jpg
-!src/public/minio/*.jpg
+# 排除 src/public 目录下的特定图片文件
+src/public/online/*.png
+src/public/online/*.jpeg
+src/public/online/*.jpg
+src/public/local/*.png
+src/public/local/*.jpeg
+src/public/local/*.jpg
+src/public/minio/*.png
+src/public/minio/*.jpeg
+src/public/minio/*.jpg
