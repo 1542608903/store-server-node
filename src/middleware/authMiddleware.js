@@ -33,7 +33,7 @@ const auth = async (ctx, next) => {
       case "JsonWebTokenError":
         return ctx.app.emit("error", JsonWebTokenError, ctx);
       default:
-        JsonWebTokenError.message = "令牌错误";
+        JsonWebTokenError.message = error.message;
         return ctx.app.emit("error", JsonWebTokenError, ctx);
     }
   }

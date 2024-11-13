@@ -221,7 +221,7 @@ class GoodsService {
       };
 
       // redis缓存
-      await setData(newGoodsKey, result, 30 * 60);
+      await setData(newGoodsKey, result, 10 * 60);
 
       // 返回分页数据
       return result ? result : null;
@@ -229,6 +229,7 @@ class GoodsService {
       throw error;
     }
   }
+
   async getGoodsWithTotalSales(pageNum = 1, pageSize = 10, order = "ASC") {
     try {
       const salesGoodsKey = `sales_product:${pageNum}:${pageSize}`;
@@ -266,7 +267,7 @@ class GoodsService {
       };
 
       // redis缓存
-      await setData(salesGoodsKey, result, 30 * 60);
+      await setData(salesGoodsKey, result, 10 * 60);
 
       return result;
     } catch (error) {

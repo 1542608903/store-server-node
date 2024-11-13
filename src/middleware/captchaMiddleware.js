@@ -3,8 +3,6 @@ const { verifyCaptcha } = require("../utils/captcha");
 const { captchaLose, captchaError } = require("../constant/errType");
 
 const validateCaptcha = async (ctx, next) => {
-  console.log(ctx.request.body);
-
   try {
     const codeKey = ctx.request.body.codeKey;
     const userCode = ctx.request.body.code;

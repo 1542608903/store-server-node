@@ -29,6 +29,7 @@
     "koa2-swagger-ui": "^5.10.0",
     "minio": "^8.0.1",
     "mysql2": "^3.11.0",
+    "p-limit": "^6.1.0",
     "rate-limiter-flexible": "^5.0.3",
     "redis": "^4.7.0",
     "sequelize": "^6.37.3",
@@ -38,5 +39,9 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+  },
+  "volta": {
+    "node": "18.16.0",
+    "npm": "8.19.4"
   }
 }

@@ -5,12 +5,19 @@ const {
   minioServrError,
 } = require("../constant/errType");
 const { minioUpload } = require("../utils/upload/minioUpload");
-const { deleteOnlineImgs, queryFileName } = require("../utils/upload");
+const {
+  deleteOnlineImgs,
+  queryFileName,
+  renameFile,
+} = require("../utils/upload");
 const {
   UPLOAD_TYPE,
   BASEURL,
   STORAGE_HOST,
 } = require("../config/config.default");
+const UUID = require("../utils/uuid");
+const sendResponse = require("../utils/response");
+const path = require("path");
 
 class uploadController {
   /**
@@ -21,64 +28,58 @@ class uploadController {
     try {
       let URL_BASEURL = BASEURL;
 
+      const fileNames = [];
+
       //判断URL地址是否/结束
       if (!BASEURL.endsWith("/")) {
         URL_BASEURL = BASEURL + "/";
       }
+      // 文件重命名
+      if (Array.isArray(file)) {
+        for (let item of file) {
+          const newFileName = `${UUID()}${path.extname(item.originalFilename)}`;
+          item.filepath = await renameFile(item.filepath, newFileName);
+        }
+      } else {
+        const newFileName = `${UUID()}${path.extname(file.originalFilename)}`;
+        file.filepath = await renameFile(file.filepath, newFileName);
+      }
 
-      const res = await queryFileName(file);
+      const mames = queryFileName(file);
 
-      const fileList = res.map(
-        (item) => `${URL_BASEURL}${UPLOAD_TYPE}/${item}`
+      fileNames.push(
+        ...mames.map((item) => `${URL_BASEURL}${UPLOAD_TYPE}/${item}`)
       );
+
       switch (UPLOAD_TYPE) {
         case "local":
-          ctx.body = {
-            code: 0,
-            message: "上传成功",
-            result: {
-              url: fileList.length === 1 ? fileList[0] : fileList,
-            },
-          };
-          break;
         case "online":
-          ctx.body = {
-            code: 0,
-            message: "上传成功",
-            result: {
-              url: fileList.length === 1 ? fileList[0] : fileList,
-            },
-          };
+          sendResponse(ctx, 0, "上传成功", fileNames);
           break;
         case "minio":
-          const minioList = [];
+          const minioList = []; // 初始化minioList
           if (Array.isArray(file)) {
-            for (let item of file) {
-              const res = await minioUpload(item.filepath);
-              const fileItem = `http://${STORAGE_HOST}:9000${res}`;
-              minioList.push(fileItem);
-            }
+            const uploadPromises = file.map(async (item) => {
+              const minioRes = await minioUpload(item.filepath);
+              const fileItem = `http://${STORAGE_HOST}:9000${minioRes}`;
+              return fileItem;
+            });
+            const minioUrls = await Promise.all(uploadPromises);
+
+            minioList.push(...minioUrls);
           } else {
-            const res = await minioUpload(file.filepath);
-            const data = `http://${STORAGE_HOST}:9000${res}`;
-            minioList.push(data);
+            const minioRes = await minioUpload(file.filepath);
+            const minioUrl = `http://${STORAGE_HOST}:9000${minioRes}`;
+            minioList.push(minioUrl);
           }
-          ctx.body = {
-            code: 0,
-            message: "上传成功",
-            result: {
-              url: minioList.length === 1 ? minioList[0] : minioList,
-            },
-          };
+          sendResponse(ctx, 0, "上传成功", minioList);
           break;
         default:
-          ctx.body = {
-            code: "-1",
-            message: "请选择正确的上传方式",
-          };
+          fileUploadError.message = "上传类型不支持";
+          ctx.app.emit("error", fileUploadError, ctx);
           break;
       }
-    } catch (err) {
+    } catch (error) {
       switch (UPLOAD_TYPE) {
         case "local":
           ctx.app.emit("error", localServrError, ctx);
@@ -90,11 +91,14 @@ class uploadController {
           ctx.app.emit("error", minioServrError, ctx);
           break;
         default:
+          fileUploadError.message = "上传类型不支持";
           ctx.app.emit("error", fileUploadError, ctx);
           break;
       }
+
       await deleteOnlineImgs(file);
-      throw err;
+      console.log(error);
+      throw error;
     }
   }
 }

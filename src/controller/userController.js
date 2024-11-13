@@ -53,8 +53,8 @@ class UseContrller {
       const { password, ...user } = await getUserInfo(userInfo);
 
       // 刷新token
-      const accessToken = createToken(user, "3h");
-      const refreshToken = createToken(user, "3h");
+      const accessToken = createToken(user, "12h");
+      const refreshToken = createToken(user, "12h");
       // 返回数据
       ctx.body = {
         code: 0,
