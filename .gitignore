@@ -1,9 +1,12 @@
 node_modules
 
-src/public/online/*
-src/public/local/*
-src/public/minio/*
-
-!src/public/online
-!src/public/local
-!src/public/minio
+#排除图片文件
+!src/public/online/*.png
+!src/public/online/*.jpeg
+!src/public/local/*.png
+!src/public/local/*.jpeg
+!src/public/minio/*.png
+!src/public/minio/*.jpeg
+!src/public/online/*.jpg
+!src/public/local/*.jpg
+!src/public/minio/*.jpg
