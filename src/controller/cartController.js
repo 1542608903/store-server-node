@@ -57,9 +57,9 @@ class CartController {
    */
   async updateOneChecke(ctx) {
     try {
-      const { id } = ctx.request.params;
-      const { selected } = ctx.request.body;
-      const res = await updateChecke(id, selected);
+      const { id } = ctx.state.user;
+      const { ids } = ctx.request.body;
+      const res = await updateChecke(id, ids);
       ctx.body = {
         code: 0,
         message: "修改购物车成功",

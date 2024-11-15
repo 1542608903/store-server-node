@@ -1,6 +1,7 @@
 const { Op, fn, col, literal, QueryTypes, where } = require("sequelize");
 const Goods = require("../model/product/goods");
-const { setData, getData } = require("../utils/redis");
+const OrderItem = require("../model/order/orderItem");
+const { setData, getData, delKeyAll } = require("../utils/redis");
 const sequelize = require("../db/seq");
 class GoodsService {
   /**
@@ -12,6 +13,9 @@ class GoodsService {
     try {
       // 使用 create 方法创建新商品
       const res = await Goods.create(goods);
+      // 删除缓存
+      await delKeyAll("product:*");
+      
       // 返回创建的商品的数据值
       return res.dataValues ? res.dataValues : null;
     } catch (error) {
@@ -30,6 +34,8 @@ class GoodsService {
     try {
       // 使用 update 方法更新商品
       const res = await Goods.update(data, { where: { id } });
+      // 删除缓存
+      await delKeyAll("product:*");
       // 判断是否有记录被更新
       return res[0] > 0 ? true : false;
     } catch (error) {
@@ -46,10 +52,11 @@ class GoodsService {
    */
   async removeGoods(arr) {
     try {
-      const promises = arr.map((item) =>
-        Goods.restore({ where: { id: item } })
-      );
-      const result = await Promise.all(promises);
+      if (arr.length === 0) return;
+      const restorePromises = arr.map((id) => Goods.destroy({ where: { id } }));
+      const result = await Promise.all(restorePromises);
+      // 删除缓存
+      await delKeyAll("product:*");
       return result;
     } catch (error) {
       throw error;
@@ -57,7 +64,7 @@ class GoodsService {
   }
 
   /**
-   * 恢复已删除的商品
+   * 恢复已下架的商品
    */
   async restoreGoods(arr) {
     try {
@@ -65,6 +72,8 @@ class GoodsService {
         Goods.restore({ where: { id: item } })
       );
       const result = await Promise.all(promises);
+      // 删除缓存
+      await delKeyAll("product:*");
       return result;
     } catch (error) {
       throw error;
@@ -111,7 +120,7 @@ class GoodsService {
   }
 
   // 获取下架商品
-  async getRemoveGoods(pageNum = 1, pageSize = 8) {
+  async getRemoveGoods(pageNum = 1, pageSize = 10) {
     try {
       // 计算分页的偏移量
       const offset = (pageNum - 1) * pageSize;
@@ -274,6 +283,65 @@ class GoodsService {
       throw error;
     }
   }
+  // async getGoodsWithTotalSales(pageNum = 1, pageSize = 10, order = "ASC") {
+  //   try {
+  //     const salesGoodsKey = `sales_product:${pageNum}:${pageSize}:${order}`;
+
+  //     // 检查缓存
+  //     const cachedData = await getData(salesGoodsKey);
+  //     if (cachedData) {
+  //       return cachedData;
+  //     }
+
+  //     const offset = (pageNum - 1) * pageSize;
+
+  //     // 使用 Sequelize 查询，联合 goods 和 order_items 表
+  //     const { rows, count } = await Goods.findAndCountAll({
+  //       attributes: [
+  //         "id",
+  //         "goods_name",
+  //         "goods_price",
+  //         // 计算总销量，使用 Sequelize 的聚合函数 SUM
+  //         [
+  //           fn("COALESCE", fn("SUM", col("order_items.quantity")), 0),
+  //           "totalSales",
+  //         ],
+  //       ],
+  //       include: [
+  //         {
+  //           model: OrderItem,
+  //           attributes: [], // 不需要返回 order_items 的具体字段，只需要聚合结果
+  //         },
+  //       ],
+  //       where: {
+  //         deletedAt: null, // 排除已删除的商品
+  //       },
+  //       group: ["goods_id"], // 按商品 ID 分组，计算每个商品的总销量
+  //       order: [
+  //         [literal(`totalSales ${order}`)], // 根据 totalSales 排序
+  //       ],
+
+  //       limit: pageSize,
+  //       offset: offset,
+  //     });
+
+  //     // 格式化返回的数据
+  //     const result = {
+  //       pageNum: +pageNum,
+  //       pageSize: +pageSize,
+  //       total: count, // 总记录数
+  //       list: rows, // 当前页的商品数据
+  //     };
+
+  //     // 将查询结果存入 Redis 缓存，设置过期时间为 10 分钟
+  //     await setData(salesGoodsKey, result, 10 * 60);
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error("Error getting goods with total sales:", error);
+  //     throw error; // 重新抛出错误
+  //   }
+  // }
 
   /**
    * 库存减少函数

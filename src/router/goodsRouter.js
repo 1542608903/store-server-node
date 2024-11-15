@@ -4,8 +4,7 @@ const Router = require("koa-router");
 // 引入认证和权限中间件
 const { auth, verifAdmin } = require("../middleware/authMiddleware");
 
-// 引入商品验证中间件
-const { verildatot } = require("../middleware/goodsMiddleware");
+const { validateParams } = require("../middleware/genericMiddleware");
 
 // 引入商品控制器方法
 const {
@@ -20,15 +19,28 @@ const {
   querySalesGoods,
   getProduct,
 } = require("../controller/goodsController");
-
+const { goodsFormatRules } = require("../constant/rules");
+const { goodsUpdateError } = require("../constant/errType");
 // 实例化路由
 const router = new Router({ prefix: "/goods" });
 
 // 路由：创建商品
-router.post("/", auth, verifAdmin, verildatot, create);
+router.post(
+  "/",
+  validateParams(goodsFormatRules, goodsUpdateError),
+  auth,
+  verifAdmin,
+  create
+);
 
 // 路由：更新商品信息
-router.put("/:id", verildatot, auth, verifAdmin, update);
+router.put(
+  "/:id",
+  validateParams(goodsFormatRules, goodsUpdateError),
+  auth,
+  verifAdmin,
+  update
+);
 
 // 路由：删除商品
 router.post("/off", auth, verifAdmin, removal);

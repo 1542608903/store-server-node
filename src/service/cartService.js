@@ -48,7 +48,7 @@ class CartService {
       throw error;
     }
   }
-  
+
   async oneUserCarts(user_id, pageNum = 1, pageSize = 5) {
     try {
       const offset = (pageNum - 1) * pageSize;
@@ -74,17 +74,49 @@ class CartService {
       throw error;
     }
   }
-  async updateChecke(id, selected) {
+
+  /**
+   * 选中的购物车条目
+   * @param {number} user_id  用户ID
+   * @param {Array} ids  购物车条目ID数组
+   * @returns
+   */
+  async updateChecke(userId, ids) {
     try {
-      const res = await Cart.update(
-        { selected },
-        {
-          where: {
-            id,
-          },
-        }
-      );
-      return res;
+      // 如果没有选中任何条目，则将所有条目的 selected 设置为 false
+      if (ids.length === 0) {
+        new CartService().selectALllCarts(userId, false);
+        return 0;
+      }
+      // 使用事务保证两个更新操作的原子性
+      const result = await Cart.sequelize.transaction(async (t) => {
+        // 1. 先将所有条目的 selected 设置为 false
+        await Cart.update(
+          { selected: false },
+          {
+            where: { user_id: userId },
+            transaction: t,
+          }
+        );
+
+        // 2. 再将指定条目的 selected 设置为 true
+        const res = await Cart.update(
+          { selected: true },
+          {
+            where: {
+              id: {
+                [Op.in]: ids,
+              },
+              user_id: userId,
+            },
+            transaction: t,
+          }
+        );
+        
+        return res;
+      });
+
+      return result;
     } catch (error) {
       throw error;
     }

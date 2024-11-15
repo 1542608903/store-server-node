@@ -30,15 +30,7 @@ router.post(
 
 router.get("/", auth, findAll);
 
-router.patch(
-  "/check/:id",
-  validateParams(
-    cartSelectRules,
-    cartFormatError
-  ),
-  auth,
-  updateOneChecke
-);
+router.patch("/check", auth, updateOneChecke);
 
 router.patch(
   "/number/:id",

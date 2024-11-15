@@ -71,8 +71,7 @@ const validateParams = (customRules, customErrType) => {
       // 验证通过后，继续执行下一个中间件
       await next();
     } catch (error) {
-      console.log("参数验证失败", error);
-      // 触发自定义错误处理
+
       ctx.app.emit(
         "error",
         { ...customErrType, message: error.message || "参数验证失败" },

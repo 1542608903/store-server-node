@@ -23,48 +23,52 @@ module.exports = {
       type: "string",
       min: 4,
       max: 16,
-      required: true, // 用户名是必填项，限制字符长度在 4 到 16 之间
+      required: true,
+      description: "用户名必须是字符串，长度在 4 到 16 字符之间",
     },
     email: {
       type: "string",
-      required: true, // 邮箱是必填项
-      format: newEmailRules, // 格式验证
+      required: true,
+      format: newEmailRules,
     },
     password: {
       type: "string",
       min: 6,
       max: 16,
-      required: true, // 密码是必填项，限制长度在 6 到 16 之间
+      required: true,
+      description: "密码必须是字符串，长度在 6 到 16 字符之间",
     },
     codeKey: {
       type: "string",
-      required: true, // 验证码密钥是必填项
+      required: true,
     },
     code: {
       type: "string",
-      required: true, // 验证码是必填项
+      required: true,
     },
   },
   loginRules: {
     user_name: {
       type: "string",
-      required: true, // 用户名是必填项
+      required: true,
       min: 4,
-      max: 16, // 确保用户名长度在 4 到 16 字符之间
+      max: 16,
+      description: "用户名必须是字符串，长度在 4 到 16 字符之间",
     },
     password: {
       type: "string",
       min: 6,
       max: 16,
-      required: true, // 密码是必填项，且长度在 6 到 16 字符之间
+      required: true,
+      description: "密码必须是字符串，长度在 6 到 16 字符之间",
     },
     codeKey: {
       type: "string",
-      required: true, // 验证码密钥是必填项
+      required: true,
     },
     code: {
       type: "string",
-      required: true, // 验证码是必填项
+      required: true,
     },
   },
 
@@ -76,6 +80,7 @@ module.exports = {
   },
   // 商品
   goodsFormatRules: {
+    id: { type: "integer", required: false },
     goods_name: {
       type: "string",
       required: true,
@@ -120,7 +125,7 @@ module.exports = {
       minLength: 2, // 地址至少要有一个字符
     },
   },
-  
+
   // 订单
   orderInfoRules: {
     data: {

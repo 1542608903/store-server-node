@@ -151,6 +151,22 @@ module.exports = {
     message: "商品不存在",
     result: "",
   },
+  goodsUpdateError: {
+    code: "10206",
+    message: "商品更新错误",
+    result: "",
+  },
+  goodsRemoveError: {
+    code: "10207",
+    message: "商品下架错误",
+    result: "",
+  },
+  goodsRestoreError: {
+    code: "10208",
+    message: "商品上架错误",
+    result: "",
+  },
+
   addCartError: {
     code: "10301",
     message: "添加购物车出错",

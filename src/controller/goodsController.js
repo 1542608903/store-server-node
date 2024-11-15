@@ -25,7 +25,6 @@ class GoodsController {
         result: res,
       };
     } catch (err) {
-      console.error("发布商品失败", err);
       ctx.app.emit("error", publishGoodsError, ctx);
     }
   }
@@ -42,12 +41,11 @@ class GoodsController {
         return (ctx.body = {
           code: 0,
           message: "修改商品成功",
-          result: body,
+          result: res,
         });
-      } else {
-        return ctx.app.emit("error", invalidGoodsID, ctx);
       }
     } catch (error) {
+      console.log(error);
       ctx.app.emit("error", invalidGoodsID, ctx);
       throw error;
     }
@@ -58,8 +56,8 @@ class GoodsController {
    */
   async removal(ctx) {
     try {
-      const { id } = ctx.request.body;
-      const res = await removeGoods(id);
+      const ids = ctx.request.body;
+      const res = await removeGoods(ids);
       if (res) {
         ctx.body = {
           code: 0,
@@ -79,8 +77,8 @@ class GoodsController {
    */
   async restore(ctx) {
     try {
-      const { id } = ctx.request.body;
-      const res = await restoreGoods(id);
+      const ids = ctx.request.body;
+      const res = await restoreGoods(ids);
       if (res) {
         ctx.body = {
           code: 0,
@@ -175,7 +173,7 @@ class GoodsController {
 
   async getProduct(ctx) {
     try {
-      const id = ctx.query.id; 
+      const id = ctx.query.id;
       const res = await getProductById(id);
       ctx.body = {
         code: 0,
